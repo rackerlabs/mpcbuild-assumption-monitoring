@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 0.12"
 
   required_providers {
-    aws = ">= 2.60.0"
+    aws = ">= 2.70.0"
   }
 }
 
@@ -77,7 +77,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_instance_alarm_r
     [
       "StatusCheckFailedInstanceAlarmReboot",
       var.app_name,
-      format("%03d", count.index + 1),
+      element(ec2_instance_ids, count.index),
     ],
   )
   comparison_operator = "GreaterThanThreshold"
@@ -102,7 +102,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_system_alarm_rec
     [
       "StatusCheckFailedSystemAlarmRecover",
       var.app_name,
-      format("%03d", count.index + 1),
+      element(ec2_instance_ids, count.index),
     ],
   )
   comparison_operator = "GreaterThanThreshold"

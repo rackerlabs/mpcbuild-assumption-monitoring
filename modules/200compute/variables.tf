@@ -78,7 +78,7 @@ variable "elb_rackspace_alarms_enabled" {
 variable "enable_recovery_alarms" {
   description = "Boolean parameter controlling if auto-recovery alarms should be created.  Recovery actions are not supported on all instance types and AMIs, especially those with ephemeral storage.  This parameter should be set to false for those cases."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "ec2_cw_cpu_high_evaluations" {
