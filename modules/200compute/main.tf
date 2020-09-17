@@ -51,7 +51,7 @@ module "ec2_status_check_failed_system_alarm_ticket" {
   alarm_description = "Status checks have failed for system, generating ticket."
   alarm_name = join(
     "-",
-    ["StatusCheckFailedSystemAlarmTicket", var.app_name],
+    ["StatusCheckFailedSystemAlarmTicket", var.app_name, count.index + 1],
   )
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.ec2_instances.*.outputs
@@ -77,7 +77,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_instance_alarm_r
     [
       "StatusCheckFailedInstanceAlarmReboot",
       var.app_name,
-      count.index,
+      count.index + 1,
     ],
   )
   comparison_operator = "GreaterThanThreshold"
@@ -102,7 +102,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_system_alarm_rec
     [
       "StatusCheckFailedSystemAlarmRecover",
       var.app_name,
-      count.index,
+      count.index + 1,
     ],
   )
   comparison_operator = "GreaterThanThreshold"
@@ -125,7 +125,7 @@ module "ec2_status_check_failed_instance_alarm_ticket" {
   alarm_description = "Status checks have failed, generating ticket."
   alarm_name = join(
     "-",
-    ["StatusCheckFailedInstanceAlarmTicket", var.app_name],
+    ["StatusCheckFailedInstanceAlarmTicket", var.app_name, count.index + 1],
   )
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.ec2_instances.*.outputs
