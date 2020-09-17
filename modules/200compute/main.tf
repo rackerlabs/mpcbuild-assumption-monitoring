@@ -77,7 +77,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_instance_alarm_r
     [
       "StatusCheckFailedInstanceAlarmReboot",
       var.app_name,
-      element(ec2_instance_ids, count.index),
+      count.index,
     ],
   )
   comparison_operator = "GreaterThanThreshold"
@@ -102,7 +102,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_system_alarm_rec
     [
       "StatusCheckFailedSystemAlarmRecover",
       var.app_name,
-      element(ec2_instance_ids, count.index),
+      count.index,
     ],
   )
   comparison_operator = "GreaterThanThreshold"
