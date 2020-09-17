@@ -78,7 +78,7 @@ variable "elb_rackspace_alarms_enabled" {
 variable "enable_recovery_alarms" {
   description = "Boolean parameter controlling if auto-recovery alarms should be created.  Recovery actions are not supported on all instance types and AMIs, especially those with ephemeral storage.  This parameter should be set to false for those cases."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "ec2_cw_cpu_high_evaluations" {
@@ -108,7 +108,7 @@ variable "ec2_cw_cpu_high_threshold" {
 variable "asg_enable_scaling_actions" {
   description = "Should this autoscaling group be configured with scaling alarms to manage the desired count.  Set this variable to false if another process will manage the desired count, such as EKS Cluster Autoscaler."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "asg_ec2_scale_down_adjustment" {
