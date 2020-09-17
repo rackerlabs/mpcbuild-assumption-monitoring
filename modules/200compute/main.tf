@@ -51,7 +51,7 @@ module "ec2_status_check_failed_system_alarm_ticket" {
   alarm_description = "Status checks have failed for system, generating ticket."
   alarm_name = join(
     "-",
-    ["StatusCheckFailedSystemAlarmTicket", var.app_name, count.index + 1],
+    ["StatusCheckFailedSystemAlarmTicket", var.app_name],
   )
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.ec2_instances.*.outputs
@@ -125,7 +125,7 @@ module "ec2_status_check_failed_instance_alarm_ticket" {
   alarm_description = "Status checks have failed, generating ticket."
   alarm_name = join(
     "-",
-    ["StatusCheckFailedInstanceAlarmTicket", var.app_name, count.index + 1],
+    ["StatusCheckFailedInstanceAlarmTicket", var.app_name],
   )
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.ec2_instances.*.outputs
