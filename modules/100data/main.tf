@@ -85,7 +85,7 @@ module "rds_replica_free_storage_space_ticket" {
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Free storage space has fallen below threshold, generating ticket."
-  alarm_name               = "${var.app_name}-rds-free-storage-ticket"
+  alarm_name               = "${var.app_name}-rds-replica-free-storage-ticket"
   comparison_operator      = "LessThanOrEqualToThreshold"
   evaluation_periods       = 30
   metric_name              = "FreeStorageSpace"
@@ -124,7 +124,7 @@ module "rds_replica_free_storage_space_alarm_email" {
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Free storage space has fallen below threshold, sending email notification."
-  alarm_name               = "${var.app_name}-free-storage-space-email"
+  alarm_name               = "${var.app_name}-rds-replica-free-storage-space-email"
   comparison_operator      = "LessThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 30
@@ -162,7 +162,7 @@ module "rds_replica_write_iops_high_alarm_email" {
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Alarm if WriteIOPs > ${var.rds_alarm_write_iops_limit} for 5 minutes"
-  alarm_name               = "${var.app_name}-rds-write-iops-high-email"
+  alarm_name               = "${var.app_name}-rds-replica-write-iops-high-email"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
@@ -200,7 +200,7 @@ module "rds_replica_read_iops_high_alarm_email" {
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Alarm if ReadIOPs > ${var.rds_alarm_read_iops_limit} for 5 minutes"
-  alarm_name               = "${var.app_name}-rds-read-iops-high-email"
+  alarm_name               = "${var.app_name}-rds-replica-read-iops-high-email"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
@@ -219,7 +219,7 @@ module "rds_cpu_high_alarm_email" {
 
   alarm_count              = var.number_rds_instances
   alarm_description        = "Alarm if CPU > ${var.rds_alarm_cpu_limit} for 15 minutes"
-  alarm_name               = "${var.app_name}-cpu-high-email"
+  alarm_name               = "${var.app_name}-rds-cpu-high-email"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -238,7 +238,7 @@ module "rds_replica_cpu_high_alarm_email" {
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Alarm if CPU > ${var.rds_alarm_cpu_limit} for 15 minutes"
-  alarm_name               = "${var.app_name}-cpu-high-email"
+  alarm_name               = "${var.app_name}-rds-replica-cpu-high-email"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
