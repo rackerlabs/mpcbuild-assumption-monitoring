@@ -9,7 +9,7 @@ variable "app_name" {
 }
 
 variable "enable_aws_backup" {
-  description = "Flag to create AWS backup plan"
+  description = "Flag to create full AWS backup solution"
   type        = bool
   default     = false
 }
@@ -33,7 +33,7 @@ variable "start_window_backup" {
 }
 
 variable "retention_period_backup" {
-  description = "Number of days that the EC2 AMI's (snapshots will be retained)"
+  description = "Number of days that the EC2 AMI's (snapshots) will be retained"
   type        = number
   default     = 15
 }
