@@ -51,7 +51,7 @@ module "ec2_status_check_failed_system_alarm_ticket" {
   alarm_description = "Status checks have failed for system, generating ticket."
   alarm_name = join(
     "-",
-    ["StatusCheckFailedSystemAlarmTicket", var.app_name],
+    ["EC2", "StatusCheckFailedSystemAlarmTicket", var.app_name],
   )
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.ec2_instances.*.outputs
@@ -75,6 +75,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_instance_alarm_r
   alarm_name = join(
     "-",
     [
+      "EC2",
       "StatusCheckFailedInstanceAlarmReboot",
       var.app_name,
       count.index + 1,
@@ -100,6 +101,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_system_alarm_rec
   alarm_name = join(
     "-",
     [
+      "EC2",
       "StatusCheckFailedSystemAlarmRecover",
       var.app_name,
       count.index + 1,
@@ -125,7 +127,7 @@ module "ec2_status_check_failed_instance_alarm_ticket" {
   alarm_description = "Status checks have failed, generating ticket."
   alarm_name = join(
     "-",
-    ["StatusCheckFailedInstanceAlarmTicket", var.app_name],
+    ["EC2", "StatusCheckFailedInstanceAlarmTicket", var.app_name],
   )
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.ec2_instances.*.outputs
@@ -147,7 +149,7 @@ module "ec2_cpu_alarm_high" {
 
   alarm_count              = var.number_ec2_instances
   alarm_description        = "CPU Alarm ${var.ec2_cw_cpu_high_operator} ${var.ec2_cw_cpu_high_threshold}% for ${var.ec2_cw_cpu_high_period} seconds ${var.ec2_cw_cpu_high_evaluations} times."
-  alarm_name               = join("-", ["CPUAlarmHigh", var.app_name])
+  alarm_name               = join("-", ["EC2", "CPUAlarmHigh", var.app_name])
   comparison_operator      = var.ec2_cw_cpu_high_operator
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.ec2_instances.*.outputs

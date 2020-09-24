@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "backup_assume" {
 }
 
 resource "aws_iam_role" "backup_service" {
-  count = var.enable_aws_backup ? 1 : 0
+  count = var.enable_aws_backup && var.create_backup_role ? 1 : 0
 
   name               = "AWSBackupDefaultServiceRole"
   description        = "Provides AWS Backup permission to create backups and perform restores on your behalf across AWS services."
@@ -59,14 +59,14 @@ resource "aws_iam_role" "backup_service" {
 }
 
 resource "aws_iam_role_policy_attachment" "backup" {
-  count = var.enable_aws_backup ? 1 : 0
+  count = var.enable_aws_backup && var.create_backup_role ? 1 : 0
 
   role       = aws_iam_role.backup_service[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
 }
 
 resource "aws_iam_role_policy_attachment" "restore" {
-  count = var.enable_aws_backup ? 1 : 0
+  count = var.enable_aws_backup && var.create_backup_role ? 1 : 0
 
   role       = aws_iam_role.backup_service[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"

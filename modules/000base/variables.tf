@@ -14,6 +14,11 @@ variable "enable_aws_backup" {
   default     = false
 }
 
+variable "create_backup_role" {
+  description = "Flag to create IAM role for AWS backup. Only needed once if working with multiple regions"
+  default     = false
+}
+
 variable "completion_window_backup" {
   description = "The amount of time AWS Backup attempts a backup before canceling the job and returning an error. Defaults to 8 hours. Completion windows only apply to EFS backups."
   type        = number
