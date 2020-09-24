@@ -37,3 +37,77 @@ module "vpn_status" {
   statistic                = "Maximum"
   threshold                = 0
 }
+
+data "aws_iam_policy_document" "backup_assume" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["backup.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "backup_service" {
+  count = var.enable_aws_backup ? 1 : 0
+
+  name               = "AWSBackupDefaultServiceRole"
+  description        = "Provides AWS Backup permission to create backups and perform restores on your behalf across AWS services."
+  path               = "/service-role/"
+  assume_role_policy = data.aws_iam_policy_document.backup_assume.json
+}
+
+resource "aws_iam_role_policy_attachment" "backup" {
+  count = var.enable_aws_backup ? 1 : 0
+
+  role       = aws_iam_role.backup_service[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+}
+
+resource "aws_iam_role_policy_attachment" "restore" {
+  count = var.enable_aws_backup ? 1 : 0
+
+  role       = aws_iam_role.backup_service[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
+}
+
+resource "aws_backup_vault" "backup_vault" {
+  count = var.enable_aws_backup ? 1 : 0
+
+  name = "${var.environment}-${var.app_name}-backup-vault"
+}
+
+resource "aws_backup_plan" "backup_plan" {
+  count = var.enable_aws_backup ? 1 : 0
+
+  name = "${var.environment}-${var.app_name}-backup-plan"
+
+  rule {
+    rule_name         = "${var.environment}-${var.app_name}-backup-plan"
+    target_vault_name = aws_backup_vault.backup_vault[0].name
+
+    lifecycle {
+      delete_after = var.retention_period_backup
+    }
+
+    schedule          = var.schedule_backup
+    start_window      = var.start_window_backup
+    completion_window = var.completion_window_backup
+  }
+}
+
+resource "aws_backup_selection" "backup_selection" {
+  count = var.enable_aws_backup ? 1 : 0
+
+  iam_role_arn = aws_iam_role.backup_service[0].arn
+  name         = "${var.environment}-${var.app_name}-backup-selection"
+  plan_id      = aws_backup_plan.backup_plan[0].id
+
+  selection_tag {
+    key   = "Backup"
+    value = "True"
+    type  = "STRINGEQUALS"
+  }
+
+}

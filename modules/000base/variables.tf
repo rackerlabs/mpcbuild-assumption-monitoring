@@ -8,6 +8,36 @@ variable "app_name" {
   type        = string
 }
 
+variable "enable_aws_backup" {
+  description = "Flag to create AWS backup plan"
+  type        = bool
+  default     = false
+}
+
+variable "completion_window_backup" {
+  description = "The amount of time AWS Backup attempts a backup before canceling the job and returning an error. Defaults to 8 hours. Completion windows only apply to EFS backups."
+  type        = number
+  default     = 480
+}
+
+variable "schedule_backup" {
+  description = "A CRON expression specifying when AWS Backup initiates a backup job. Default is 05:00 UTC every day. Consult https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html for expression help."
+  type        = string
+  default     = "cron(0 5 ? * * *)"
+}
+
+variable "start_window_backup" {
+  description = "The amount of time in minutes after a backup is scheduled before a job is canceled if it doesn't start successfully. Minimum and Default value is 60. Max is 720 (12 Hours)."
+  type        = number
+  default     = 60
+}
+
+variable "retention_period_backup" {
+  description = "Number of days that the EC2 AMI's (snapshots will be retained)"
+  type        = number
+  default     = 15
+}
+
 variable "number_vpn_connections" {
   description = "Number of VPN connections to monitor"
   type        = number
