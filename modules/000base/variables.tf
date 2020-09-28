@@ -16,7 +16,14 @@ variable "enable_aws_backup" {
 
 variable "create_backup_role" {
   description = "Flag to create IAM role for AWS backup. Only needed once if working with multiple regions"
+  type        = bool
   default     = false
+}
+
+variable "backup_tag_value" {
+  description = "Backup Tag value used for AWS Backup selection"
+  type        = string
+  default     = "True"
 }
 
 variable "completion_window_backup" {
