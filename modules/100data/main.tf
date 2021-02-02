@@ -453,7 +453,7 @@ module "redis_evictions_alarm" {
   namespace                = "AWS/ElastiCache"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.redis_evictions_threshold
 }
@@ -472,7 +472,7 @@ module "redis_cpu_utilization_alarm" {
   namespace                = "AWS/ElastiCache"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.redis_cpu_high_threshold
 }
@@ -491,7 +491,7 @@ module "redis_curr_connections_alarm" {
   namespace                = "AWS/ElastiCache"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.redis_curr_connections_threshold
 }

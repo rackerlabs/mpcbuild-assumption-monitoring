@@ -58,19 +58,19 @@ variable "notification_topic" {
 }
 
 variable "ec2_rackspace_alarms_enabled" {
-  description = "Specifies whether EC2 alarms will create a Rackspace ticket. Ignored if rackspace_managed is set to false."
+  description = "Specifies whether EC2 alarms will create a Rackspace ticket"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "asg_rackspace_alarms_enabled" {
-  description = "Specifies whether ASG alarms will create a Rackspace ticket. Ignored if rackspace_managed is set to false."
+  description = "Specifies whether ASG alarms will create a Rackspace ticket"
   type        = bool
   default     = false
 }
 
 variable "elb_rackspace_alarms_enabled" {
-  description = "Specifies whether ELB alarms will create a Rackspace ticket. Ignored if rackspace_managed is set to false."
+  description = "Specifies whether ELB alarms will create a Rackspace ticket"
   type        = bool
   default     = false
 }

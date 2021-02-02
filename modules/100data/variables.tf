@@ -94,25 +94,31 @@ variable "notification_topic" {
 }
 
 variable "rds_rackspace_alarms_enabled" {
-  description = "Specifies whether RDS alarms will create a Rackspace ticket. Ignored if rackspace_managed is set to false."
+  description = "Specifies whether RDS alarms will create a Rackspace ticket."
   type        = bool
   default     = false
 }
 
 variable "aurora_rackspace_alarms_enabled" {
-  description = "Specifies whether Aurora alarms will create a Rackspace ticket. Ignored if rackspace_managed is set to false."
+  description = "Specifies whether Aurora alarms will create a Rackspace ticket."
   type        = bool
   default     = false
 }
 
 variable "efs_rackspace_alarms_enabled" {
-  description = "Specifies whether EFS alarms will create a Rackspace ticket. Ignored if rackspace_managed is set to false."
+  description = "Specifies whether EFS alarms will create a Rackspace ticket."
   type        = bool
   default     = false
 }
 
 variable "redshift_rackspace_alarms_enabled" {
-  description = "Specifies whether Redshift alarms will create a Rackspace ticket. Ignored if rackspace_managed is set to false."
+  description = "Specifies whether Redshift alarms will create a Rackspace ticket."
+  type        = bool
+  default     = false
+}
+
+variable "redis_rackspace_alarms_enabled" {
+  description = "Specifies whether Redis (Elasticache) alarms will create a Rackspace ticket."
   type        = bool
   default     = false
 }
