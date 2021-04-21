@@ -105,7 +105,7 @@ resource "aws_backup_selection" "backup_selection" {
   plan_id      = aws_backup_plan.backup_plan[0].id
 
   selection_tag {
-    key   = "Backup"
+    key   = var.backup_tag_key
     value = var.backup_tag_value
     type  = "STRINGEQUALS"
   }

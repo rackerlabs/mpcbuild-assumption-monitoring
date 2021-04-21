@@ -20,6 +20,12 @@ variable "create_backup_role" {
   default     = false
 }
 
+variable "backup_tag_key" {
+  description = "Backup tag key used for AWS Backup selection"
+  type        = string
+  default     = "Backup"
+}
+
 variable "backup_tag_value" {
   description = "Backup Tag value used for AWS Backup selection"
   type        = string
