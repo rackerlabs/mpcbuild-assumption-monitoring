@@ -6,6 +6,8 @@ terraform {
   }
 }
 
+data "aws_caller_identity" "current_account" {}
+
 module "sns" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns//?ref=v0.12.1"
 
@@ -101,7 +103,7 @@ resource "aws_backup_plan" "backup_plan" {
 resource "aws_backup_selection" "backup_selection" {
   count = var.enable_aws_backup ? 1 : 0
 
-  iam_role_arn = aws_iam_role.backup_service[0].arn
+  iam_role_arn = var.create_backup_role ? aws_iam_role.backup_service[0].arn : "arn:aws:iam::${data.aws_caller_identity.current_account.account_id}:role/service-role/AWSBackupDefaultServiceRole"
   name         = "${var.environment}-${var.app_name}-backup-selection"
   plan_id      = aws_backup_plan.backup_plan[0].id
 
