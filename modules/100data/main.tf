@@ -372,6 +372,7 @@ module "efs_burst_credits" {
   statistic                = "Minimum"
   threshold                = var.efs_cw_burst_credit_threshold
   dimensions               = data.null_data_source.efs.*.outputs
+  unit                     = "Bytes"
 }
 
 ##### Redshift Monitoring #####
