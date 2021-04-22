@@ -36,6 +36,7 @@ module "vpn_status" {
   rackspace_alarms_enabled = false
   statistic                = "Maximum"
   threshold                = 0
+  unit                     = "None"
 }
 
 data "aws_iam_policy_document" "backup_assume" {

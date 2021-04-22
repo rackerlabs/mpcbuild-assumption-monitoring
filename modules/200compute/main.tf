@@ -162,6 +162,7 @@ module "ec2_cpu_alarm_high" {
   rackspace_managed        = true
   statistic                = "Average"
   threshold                = var.ec2_cw_cpu_high_threshold
+  unit                     = "Percent"
 }
 
 ##### Auto Scaling Group Monitoring #####
