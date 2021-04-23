@@ -77,6 +77,7 @@ module "rds_free_storage_space_ticket" {
   severity                 = "urgent"
   statistic                = "Average"
   threshold                = var.rds_alarm_free_space_limit
+  unit                     = "Bytes"
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
@@ -97,6 +98,7 @@ module "rds_replica_free_storage_space_ticket" {
   severity                 = "urgent"
   statistic                = "Average"
   threshold                = var.rds_alarm_free_space_limit
+  unit                     = "Bytes"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
@@ -116,6 +118,7 @@ module "rds_free_storage_space_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = 3072000000
+  unit                     = "Bytes"
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
@@ -135,6 +138,7 @@ module "rds_replica_free_storage_space_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = 3072000000
+  unit                     = "Bytes"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
@@ -154,6 +158,7 @@ module "rds_write_iops_high_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = var.rds_alarm_write_iops_limit
+  unit                     = "Count/Second"
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
@@ -173,6 +178,7 @@ module "rds_replica_write_iops_high_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = var.rds_alarm_write_iops_limit
+  unit                     = "Count/Second"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
@@ -192,6 +198,7 @@ module "rds_read_iops_high_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = var.rds_alarm_read_iops_limit
+  unit                     = "Count/Second"
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
@@ -211,6 +218,7 @@ module "rds_replica_read_iops_high_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = var.rds_alarm_read_iops_limit
+  unit                     = "Count/Second"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
@@ -230,6 +238,7 @@ module "rds_cpu_high_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = var.rds_alarm_cpu_limit
+  unit                     = "Percent"
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
@@ -249,6 +258,7 @@ module "rds_replica_cpu_high_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = var.rds_alarm_cpu_limit
+  unit                     = "Percent"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
@@ -269,6 +279,7 @@ module "replica_lag_alarm_ticket" {
   severity                 = "urgent"
   statistic                = "Average"
   threshold                = 3600
+  unit                     = "Seconds"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
@@ -288,6 +299,7 @@ module "replica_lag_alarm_email" {
   rackspace_alarms_enabled = false
   statistic                = "Average"
   threshold                = 3600
+  unit                     = "Seconds"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
