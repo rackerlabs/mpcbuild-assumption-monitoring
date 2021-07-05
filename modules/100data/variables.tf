@@ -210,7 +210,19 @@ variable "redis_cpu_high_evaluations" {
 variable "redis_cpu_high_threshold" {
   description = "(redis) The max CPU Usage % before generating an alarm."
   type        = number
-  default     = 90
+  default     = 75
+}
+
+variable "redis_memory_high_evaluations" {
+  description = "(redis) The number of minutes memory usage must remain above the specified threshold to generate an alarm."
+  type        = number
+  default     = 5
+}
+
+variable "redis_memory_high_threshold" {
+  description = "(redis) The max memory usage % before generating an alarm."
+  type        = number
+  default     = 75
 }
 
 variable "redis_curr_connections_evaluations" {

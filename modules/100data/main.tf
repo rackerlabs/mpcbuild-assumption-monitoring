@@ -117,7 +117,7 @@ module "rds_free_storage_space_alarm_email" {
   period                   = 60
   rackspace_alarms_enabled = false
   statistic                = "Average"
-  threshold                = 3072000000
+  threshold                = var.rds_alarm_free_space_limit
   unit                     = "Bytes"
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
@@ -137,7 +137,7 @@ module "rds_replica_free_storage_space_alarm_email" {
   period                   = 60
   rackspace_alarms_enabled = false
   statistic                = "Average"
-  threshold                = 3072000000
+  threshold                = var.rds_alarm_free_space_limit
   unit                     = "Bytes"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
@@ -488,6 +488,25 @@ module "redis_cpu_utilization_alarm" {
   rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.redis_cpu_high_threshold
+}
+
+module "redis_memory_utilization_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+
+  alarm_count              = var.number_redis_clusters
+  alarm_name               = "${var.app_name}-Redis-MemoryUtilizationAlarm"
+  alarm_description        = "Memory Utilization over ${var.redis_memory_high_threshold}"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = data.null_data_source.redis.*.outputs
+  evaluation_periods       = var.redis_memory_high_evaluations
+  metric_name              = "DatabaseMemoryUsagePercentage"
+  namespace                = "AWS/ElastiCache"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
+  statistic                = "Average"
+  threshold                = var.redis_memory_high_threshold
 }
 
 module "redis_curr_connections_alarm" {
