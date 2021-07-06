@@ -141,6 +141,24 @@ variable "rds_alarm_read_iops_limit" {
   default     = 100
 }
 
+variable "rds_depth_queue_threshold" {
+  description = "RDS depth queue limit for an alarm"
+  type        = string
+  value       = ""
+}
+
+variable "rds_read_latency_threshold" {
+  description = "RDS read latency limit for an alarm"
+  type        = string
+  value       = ""
+}
+
+variable "rds_write_latency_threshold" {
+  description = "RDS write latency limit for an alarm"
+  type        = string
+  value       = ""
+}
+
 variable "rds_alarm_write_iops_limit" {
   description = "CloudWatch Write IOPSLimit Threshold for RDS"
   type        = number

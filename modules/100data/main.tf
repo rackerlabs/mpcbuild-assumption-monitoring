@@ -155,7 +155,7 @@ module "rds_write_iops_high_alarm_email" {
   namespace                = "AWS/RDS"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.rds_alarm_write_iops_limit
   unit                     = "Count/Second"
@@ -175,7 +175,7 @@ module "rds_replica_write_iops_high_alarm_email" {
   namespace                = "AWS/RDS"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.rds_alarm_write_iops_limit
   unit                     = "Count/Second"
@@ -195,7 +195,7 @@ module "rds_read_iops_high_alarm_email" {
   namespace                = "AWS/RDS"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.rds_alarm_read_iops_limit
   unit                     = "Count/Second"
@@ -215,7 +215,7 @@ module "rds_replica_read_iops_high_alarm_email" {
   namespace                = "AWS/RDS"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.rds_alarm_read_iops_limit
   unit                     = "Count/Second"
@@ -235,7 +235,7 @@ module "rds_cpu_high_alarm_email" {
   namespace                = "AWS/RDS"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.rds_alarm_cpu_limit
   unit                     = "Percent"
@@ -255,7 +255,7 @@ module "rds_replica_cpu_high_alarm_email" {
   namespace                = "AWS/RDS"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.rds_alarm_cpu_limit
   unit                     = "Percent"
@@ -301,6 +301,66 @@ module "replica_lag_alarm_email" {
   threshold                = 3600
   unit                     = "Seconds"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
+}
+
+module "rds_depth_queue_alarm_email" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+
+  alarm_count              = var.rds_depth_queue_threshold != "" ? var.number_rds_instances : 0
+  alarm_description        = "Alarm if Depth queue is > ${var.rds_depth_queue_threshold} for 15 minutes"
+  alarm_name               = "${var.app_name}-rds-depth-queue-email"
+  comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
+  evaluation_periods       = 15
+  metric_name              = "DiskQueueDepth"
+  namespace                = "AWS/RDS"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  statistic                = "Average"
+  threshold                = var.rds_depth_queue_threshold
+  unit                     = "Count"
+  dimensions               = data.null_data_source.rds_instances.*.outputs
+}
+
+module "rds_read_latency_alarm_email" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+
+  alarm_count              = var.rds_read_latency_threshold != "" ? var.number_rds_instances : 0
+  alarm_description        = "Alarm if read latency is > ${var.rds_read_latency_threshold} for 15 minutes"
+  alarm_name               = "${var.app_name}-rds-read-latency-email"
+  comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
+  evaluation_periods       = 15
+  metric_name              = "ReadLatency"
+  namespace                = "AWS/RDS"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  statistic                = "Average"
+  threshold                = var.rds_read_latency_threshold
+  unit                     = "Seconds"
+  dimensions               = data.null_data_source.rds_instances.*.outputs
+}
+
+module "rds_write_latency_alarm_email" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+
+  alarm_count              = var.rds_write_latency_threshold != "" ? var.number_rds_instances : 0
+  alarm_description        = "Alarm if write latency is > ${var.rds_write_latency_threshold} for 15 minutes"
+  alarm_name               = "${var.app_name}-rds-write-latency-email"
+  comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
+  evaluation_periods       = 15
+  metric_name              = "WriteLatency"
+  namespace                = "AWS/RDS"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  statistic                = "Average"
+  threshold                = var.rds_write_latency_threshold
+  unit                     = "Seconds"
+  dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
 ##### Aurora Monitoring #####
