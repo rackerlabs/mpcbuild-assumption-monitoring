@@ -126,7 +126,7 @@ variable "redis_rackspace_alarms_enabled" {
 variable "rds_alarm_cpu_limit" {
   description = "CloudWatch CPUUtilization Threshold for RDS"
   type        = number
-  default     = 60
+  default     = 75
 }
 
 variable "rds_alarm_free_space_limit" {

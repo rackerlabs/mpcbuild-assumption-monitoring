@@ -44,9 +44,9 @@ data "null_data_source" "nlb_tg" {
 
 data "null_data_source" "ecs_cluster_service" {
   count = var.number_ecs_services
-  input = {
-    ClusterName = lookup(var.number_ecs_services, "cluster")
-    ServiceName = lookup(var.number_ecs_services, "service")
+  inputs = {
+    ClusterName = lookup(var.ecs_services_list[count.index], "cluster")
+    ServiceName = lookup(var.ecs_services_list[count.index], "service")
   }
 }
 
