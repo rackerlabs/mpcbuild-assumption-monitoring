@@ -144,19 +144,19 @@ variable "rds_alarm_read_iops_limit" {
 variable "rds_depth_queue_threshold" {
   description = "RDS depth queue limit for an alarm"
   type        = string
-  value       = ""
+  default     = ""
 }
 
 variable "rds_read_latency_threshold" {
   description = "RDS read latency limit for an alarm"
   type        = string
-  value       = ""
+  default     = ""
 }
 
 variable "rds_write_latency_threshold" {
   description = "RDS write latency limit for an alarm"
   type        = string
-  value       = ""
+  default     = ""
 }
 
 variable "rds_alarm_write_iops_limit" {
