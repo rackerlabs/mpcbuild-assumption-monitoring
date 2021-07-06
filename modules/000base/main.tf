@@ -11,7 +11,7 @@ data "aws_caller_identity" "current_account" {}
 module "sns" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns//?ref=v0.12.1"
 
-  name = "${var.environment}-${var.app_name}-sns-topic"
+  name = "${var.app_name}-${var.environment}-monitoring-sns-topic"
 }
 
 data "null_data_source" "vpn" {
