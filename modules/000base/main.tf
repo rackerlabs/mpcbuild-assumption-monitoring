@@ -22,7 +22,7 @@ data "null_data_source" "vpn" {
 }
 
 module "vpn_status" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_vpn_connections
   alarm_description        = "${var.app_name}-VPN Connection State"

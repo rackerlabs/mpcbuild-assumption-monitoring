@@ -51,6 +51,29 @@ variable "nlb_tg_list" {
   default     = [{}]
 }
 
+variable "number_ecs_services" {
+  description = "Number of ECS services per cluster to monitor"
+  type        = number
+  default     = 0
+}
+
+variable "ecs_services_list" {
+  description = "Maps representing the ECS cluster/service combination. Example: [{cluster = 'cluster1', service = 'service1'}]."
+  type        = list(map(string))
+  default     = [{}]
+}
+
+variable "number_lambda_functions" {
+  description = "Number of Lambda functions to monitor"
+  default     = 0
+}
+
+variable "lambda_names" {
+  description = "Name of the Lambda functions to monitor"
+  type        = list(string)
+  default     = []
+}
+
 variable "notification_topic" {
   description = "The SNS topic to use for customer notifications."
   type        = list(string)
@@ -71,6 +94,18 @@ variable "asg_rackspace_alarms_enabled" {
 
 variable "elb_rackspace_alarms_enabled" {
   description = "Specifies whether ELB alarms will create a Rackspace ticket"
+  type        = bool
+  default     = false
+}
+
+variable "ecs_rackspace_alarms_enabled" {
+  description = "Specifies whether ECS alarms will create a Rackspace ticket"
+  type        = bool
+  default     = false
+}
+
+variable "lambda_rackspace_alarms_enabled" {
+  description = "Specifies whether ECS alarms will create a Rackspace ticket"
   type        = bool
   default     = false
 }
@@ -193,4 +228,22 @@ variable "asg_cw_scaling_metric" {
   description = "The metric to be used for scaling on ASG."
   type        = string
   default     = "CPUUtilization"
+}
+
+variable "alb_response_time_threshold" {
+  description = "The value against which the specified statistic is compared on ALB response time alarm"
+  type        = string
+  default     = "10"
+}
+
+variable "ecs_cpu_high_threshold" {
+  description = "The value against which the specified statistic is compared on ECS CPU alarm."
+  type        = number
+  default     = 75
+}
+
+variable "ecs_memory_high_threshold" {
+  description = "The value against which the specified statistic is compared on ECS memory alarm."
+  type        = number
+  default     = 75
 }

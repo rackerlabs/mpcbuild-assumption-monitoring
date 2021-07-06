@@ -42,10 +42,25 @@ data "null_data_source" "nlb_tg" {
   }
 }
 
+data "null_data_source" "ecs_cluster_service" {
+  count = var.number_ecs_services
+  input = {
+    ClusterName = lookup(var.number_ecs_services, "cluster")
+    ServiceName = lookup(var.number_ecs_services, "service")
+  }
+}
+
+data "null_data_source" "lambda" {
+  count = var.number_lambda_functions
+  inputs = {
+    FunctionName = element(var.lambda_names, count.index)
+  }
+}
+
 ##### EC2 Monitoring #####
 
 module "ec2_status_check_failed_system_alarm_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count       = var.number_ec2_instances
   alarm_description = "Status checks have failed for system, generating ticket."
@@ -121,7 +136,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_system_alarm_rec
 }
 
 module "ec2_status_check_failed_instance_alarm_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count       = var.number_ec2_instances
   alarm_description = "Status checks have failed, generating ticket."
@@ -145,7 +160,7 @@ module "ec2_status_check_failed_instance_alarm_ticket" {
 }
 
 module "ec2_cpu_alarm_high" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_ec2_instances
   alarm_description        = "CPU Alarm ${var.ec2_cw_cpu_high_operator} ${var.ec2_cw_cpu_high_threshold}% for ${var.ec2_cw_cpu_high_period} seconds ${var.ec2_cw_cpu_high_evaluations} times."
@@ -188,7 +203,7 @@ resource "aws_autoscaling_policy" "ec2_scale_down_policy" {
 }
 
 module "asg_group_terminating_instances" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_asg
   alarm_description        = "Over ${var.asg_terminated_instances} instances terminated in last 6 hours, generating ticket to investigate."
@@ -243,7 +258,7 @@ resource "aws_cloudwatch_metric_alarm" "asg_scale_alarm_low" {
 ##### Elastic Load Balancers & Target Groups Monitoring #####
 
 module "alb_unhealthy_host_count_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_alb_tg
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
@@ -263,8 +278,29 @@ module "alb_unhealthy_host_count_alarm" {
   unit                     = "Count"
 }
 
+module "alb_target_response_time_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_alb_tg
+  alarm_description        = "Target response time is higher than threshold, creating ticket."
+  alarm_name               = "${var.app_name}_alb_target_response_time_alarm"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = data.null_data_source.alb_tg.*.outputs
+  evaluation_periods       = 10
+  metric_name              = "TargetResponseTime"
+  namespace                = "AWS/ApplicationELB"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.elb_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Average"
+  threshold                = var.alb_response_time_threshold
+  unit                     = "Seconds"
+}
+
 module "nlb_unhealthy_host_count_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_nlb_tg
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
@@ -281,5 +317,72 @@ module "nlb_unhealthy_host_count_alarm" {
   severity                 = "emergency"
   statistic                = "Maximum"
   threshold                = 1
+  unit                     = "Count"
+}
+
+####### ECS monitoring #######
+
+module "ecs_cpu_utilization_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_ecs_services
+  alarm_description        = "CPU utilization is greater than or equal to threshold, creating ticket."
+  alarm_name               = "${var.app_name}_ecs_cpu_utilization_alarm"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = data.null_data_source.ecs_cluster_service.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "CPUUtilization"
+  namespace                = "AWS/ECS"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.ecs_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Average"
+  threshold                = var.ecs_cpu_high_threshold
+  unit                     = "Percent"
+}
+
+module "ecs_memory_utilization_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_ecs_services
+  alarm_description        = "Memory utilization is greater than or equal to threshold, creating ticket."
+  alarm_name               = "${var.app_name}_ecs_memory_utilization_alarm"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = data.null_data_source.ecs_cluster_service.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "MemoryUtilization"
+  namespace                = "AWS/ECS"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.ecs_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Average"
+  threshold                = var.ecs_memory_high_threshold
+  unit                     = "Percent"
+}
+
+####### Lambda monitoring #######
+
+module "lambda_errors_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_lambda_functions
+  alarm_description        = "Errors during Lambda execution is greater than threshold, creating ticket."
+  alarm_name               = "${var.app_name}_lambda_errors_alarm"
+  comparison_operator      = "GreaterThanThreshold"
+  dimensions               = data.null_data_source.lambda.*.outputs
+  evaluation_periods       = 1
+  metric_name              = "Errors"
+  namespace                = "AWS/Lambda"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.lambda_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Minimum"
+  threshold                = "0"
   unit                     = "Count"
 }

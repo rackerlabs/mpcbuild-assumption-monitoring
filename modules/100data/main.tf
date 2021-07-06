@@ -61,7 +61,7 @@ data "null_data_source" "redis" {
 ##### RDS Monitoring #####
 
 module "rds_free_storage_space_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_instances
   alarm_description        = "Free storage space has fallen below threshold, generating ticket."
@@ -82,7 +82,7 @@ module "rds_free_storage_space_ticket" {
 }
 
 module "rds_replica_free_storage_space_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Free storage space has fallen below threshold, generating ticket."
@@ -103,7 +103,7 @@ module "rds_replica_free_storage_space_ticket" {
 }
 
 module "rds_free_storage_space_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_instances
   alarm_description        = "Free storage space has fallen below threshold, sending email notification."
@@ -123,7 +123,7 @@ module "rds_free_storage_space_alarm_email" {
 }
 
 module "rds_replica_free_storage_space_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Free storage space has fallen below threshold, sending email notification."
@@ -143,7 +143,7 @@ module "rds_replica_free_storage_space_alarm_email" {
 }
 
 module "rds_write_iops_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_instances
   alarm_description        = "Alarm if WriteIOPs > ${var.rds_alarm_write_iops_limit} for 5 minutes"
@@ -163,7 +163,7 @@ module "rds_write_iops_high_alarm_email" {
 }
 
 module "rds_replica_write_iops_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Alarm if WriteIOPs > ${var.rds_alarm_write_iops_limit} for 5 minutes"
@@ -183,7 +183,7 @@ module "rds_replica_write_iops_high_alarm_email" {
 }
 
 module "rds_read_iops_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_instances
   alarm_description        = "Alarm if ReadIOPs > ${var.rds_alarm_read_iops_limit} for 5 minutes"
@@ -203,7 +203,7 @@ module "rds_read_iops_high_alarm_email" {
 }
 
 module "rds_replica_read_iops_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Alarm if ReadIOPs > ${var.rds_alarm_read_iops_limit} for 5 minutes"
@@ -223,7 +223,7 @@ module "rds_replica_read_iops_high_alarm_email" {
 }
 
 module "rds_cpu_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_instances
   alarm_description        = "Alarm if CPU > ${var.rds_alarm_cpu_limit} for 15 minutes"
@@ -243,7 +243,7 @@ module "rds_cpu_high_alarm_email" {
 }
 
 module "rds_replica_cpu_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Alarm if CPU > ${var.rds_alarm_cpu_limit} for 15 minutes"
@@ -263,7 +263,7 @@ module "rds_replica_cpu_high_alarm_email" {
 }
 
 module "replica_lag_alarm_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "ReplicaLag has exceeded threshold, generating ticket.."
@@ -284,7 +284,7 @@ module "replica_lag_alarm_ticket" {
 }
 
 module "replica_lag_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "ReplicaLag has exceeded threshold."
@@ -306,7 +306,7 @@ module "replica_lag_alarm_email" {
 ##### Aurora Monitoring #####
 
 module "high_cpu_aurora" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_aurora_nodes
   alarm_description        = "CPU Utilization above ${var.aurora_alarm_cpu_limit} for 15 minutes.  Sending notifications..."
@@ -327,7 +327,7 @@ module "high_cpu_aurora" {
 }
 
 module "write_io_high_aurora" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_aurora_clusters
   alarm_description        = "Write IO > ${var.aurora_alarm_write_io_limit}, sending notification..."
@@ -346,7 +346,7 @@ module "write_io_high_aurora" {
 }
 
 module "read_io_high_aurora" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_aurora_clusters
   alarm_description        = "Read IO > ${var.aurora_alarm_read_io_limit}, sending notification..."
@@ -367,7 +367,7 @@ module "read_io_high_aurora" {
 ##### EFS Monitoring #####
 
 module "efs_burst_credits" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_elastic_filesystems
   alarm_description        = "EFS Burst Credits have dropped below ${var.efs_cw_burst_credit_threshold} for ${var.efs_cw_burst_credit_period} periods."
@@ -390,7 +390,7 @@ module "efs_burst_credits" {
 ##### Redshift Monitoring #####
 
 module "redshift_cpu_alarm_high" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Alarm if CPU > ${var.redshift_cw_cpu_threshold}% for 5 minutes"
@@ -410,7 +410,7 @@ module "redshift_cpu_alarm_high" {
 }
 
 module "redshift_cluster_health_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Cluster has entered unhealthy state, creating ticket"
@@ -430,7 +430,7 @@ module "redshift_cluster_health_ticket" {
 }
 
 module "redshift_free_storage_space_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Consumed storage space has risen above threshold, sending email notification"
@@ -453,7 +453,7 @@ module "redshift_free_storage_space_ticket" {
 ##### Elasticache Monitoring #####
 
 module "redis_evictions_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.redis_evictions_threshold != "" ? var.number_redis_clusters : 0
   alarm_description        = "Evictions over ${var.redis_evictions_threshold}"
@@ -472,7 +472,7 @@ module "redis_evictions_alarm" {
 }
 
 module "redis_cpu_utilization_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redis_clusters
   alarm_name               = "${var.app_name}-Redis-CPUUtilizationAlarm"
@@ -491,7 +491,7 @@ module "redis_cpu_utilization_alarm" {
 }
 
 module "redis_memory_utilization_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redis_clusters
   alarm_name               = "${var.app_name}-Redis-MemoryUtilizationAlarm"
@@ -510,7 +510,7 @@ module "redis_memory_utilization_alarm" {
 }
 
 module "redis_curr_connections_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.redis_curr_connections_threshold != "" ? var.number_redis_clusters : 0
   alarm_name               = "${var.app_name}-Redis-CurrConnectionsAlarm"
