@@ -264,6 +264,7 @@ module "alb_unhealthy_host_count_alarm" {
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
   alarm_name               = "${var.app_name}_alb_unhealthy_host_count_alarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
   dimensions               = data.null_data_source.alb_tg.*.outputs
   evaluation_periods       = 10
   metric_name              = "UnHealthyHostCount"
@@ -285,6 +286,7 @@ module "alb_target_response_time_alarm" {
   alarm_description        = "Target response time is higher than threshold, creating ticket."
   alarm_name               = "${var.app_name}_alb_target_response_time_alarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
   dimensions               = data.null_data_source.alb_tg.*.outputs
   evaluation_periods       = 10
   metric_name              = "TargetResponseTime"
@@ -306,6 +308,7 @@ module "nlb_unhealthy_host_count_alarm" {
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
   alarm_name               = "${var.app_name}_nlb_unhealthy_host_count_alarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
   dimensions               = data.null_data_source.nlb_tg.*.outputs
   evaluation_periods       = 10
   metric_name              = "UnHealthyHostCount"
@@ -328,6 +331,7 @@ module "ecs_cpu_utilization_alarm" {
   alarm_count              = var.number_ecs_services
   alarm_description        = "CPU utilization is greater than or equal to threshold, creating ticket."
   alarm_name               = "${var.app_name}_ecs_cpu_utilization_alarm"
+  customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.ecs_cluster_service.*.outputs
   evaluation_periods       = 5
@@ -350,6 +354,7 @@ module "ecs_memory_utilization_alarm" {
   alarm_description        = "Memory utilization is greater than or equal to threshold, creating ticket."
   alarm_name               = "${var.app_name}_ecs_memory_utilization_alarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
   dimensions               = data.null_data_source.ecs_cluster_service.*.outputs
   evaluation_periods       = 5
   metric_name              = "MemoryUtilization"
@@ -373,6 +378,7 @@ module "lambda_errors_alarm" {
   alarm_description        = "Errors during Lambda execution is greater than threshold, creating ticket."
   alarm_name               = "${var.app_name}_lambda_errors_alarm"
   comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
   dimensions               = data.null_data_source.lambda.*.outputs
   evaluation_periods       = 1
   metric_name              = "Errors"
