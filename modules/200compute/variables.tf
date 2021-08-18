@@ -65,6 +65,7 @@ variable "ecs_services_list" {
 
 variable "number_lambda_functions" {
   description = "Number of Lambda functions to monitor"
+  type        = number
   default     = 0
 }
 
@@ -76,6 +77,7 @@ variable "lambda_names" {
 
 variable "number_cloudfront_distributions" {
   description = "Number of Cloudfront distributions to monitor"
+  type        = number
   default     = 0
 }
 
@@ -87,6 +89,7 @@ variable "cloudfront_distribution_ids" {
 
 variable "number_api_gws" {
   description = "Number of API GW's to monitor"
+  type        = number
   default     = 0
 }
 
