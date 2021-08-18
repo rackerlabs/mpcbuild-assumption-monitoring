@@ -58,49 +58,63 @@ data "null_data_source" "redis" {
   }
 }
 
+data "null_data_source" "fsx" {
+  count = var.number_fsx_filesystems
+  inputs = {
+    FileSystemId = element(var.fsx_ids, count.index)
+  }
+}
+
+data "null_data_source" "dynamodb" {
+  count = var.number_dynamo_tables
+  inputs = {
+    TableName = element(var.dynamo_tables, count.index)
+  }
+}
+
 ##### RDS Monitoring #####
 
-module "rds_free_storage_space_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
-
-  alarm_count              = var.number_rds_instances
-  alarm_description        = "Free storage space has fallen below threshold, generating ticket."
-  alarm_name               = "${var.app_name}-rds-free-storage-ticket"
-  comparison_operator      = "LessThanOrEqualToThreshold"
-  evaluation_periods       = 30
-  metric_name              = "FreeStorageSpace"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-  rackspace_managed        = true
-  severity                 = "urgent"
-  statistic                = "Average"
-  threshold                = var.rds_alarm_free_space_limit
-  unit                     = "Bytes"
-  dimensions               = data.null_data_source.rds_instances.*.outputs
-}
-
-module "rds_replica_free_storage_space_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
-
-  alarm_count              = var.number_rds_read_replicas
-  alarm_description        = "Free storage space has fallen below threshold, generating ticket."
-  alarm_name               = "${var.app_name}-rds-replica-free-storage-ticket"
-  comparison_operator      = "LessThanOrEqualToThreshold"
-  evaluation_periods       = 30
-  metric_name              = "FreeStorageSpace"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-  rackspace_managed        = true
-  severity                 = "urgent"
-  statistic                = "Average"
-  threshold                = var.rds_alarm_free_space_limit
-  unit                     = "Bytes"
-  dimensions               = data.null_data_source.rds_read_replicas.*.outputs
-}
+# module "rds_free_storage_space_ticket" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_instances
+#   alarm_description        = "Free storage space has fallen below threshold, generating ticket."
+#   alarm_name               = "${var.app_name}-rds-free-storage-ticket"
+#   comparison_operator      = "LessThanOrEqualToThreshold"
+#   evaluation_periods       = 30
+#   metric_name              = "FreeStorageSpace"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+#   rackspace_managed        = true
+#   severity                 = "urgent"
+#   statistic                = "Average"
+#   threshold                = var.rds_alarm_free_space_limit
+#   unit                     = "Bytes"
+#   dimensions               = data.null_data_source.rds_instances.*.outputs
+# }
+#
+# module "rds_replica_free_storage_space_ticket" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_read_replicas
+#   alarm_description        = "Free storage space has fallen below threshold, generating ticket."
+#   alarm_name               = "${var.app_name}-rds-replica-free-storage-ticket"
+#   comparison_operator      = "LessThanOrEqualToThreshold"
+#   evaluation_periods       = 30
+#   metric_name              = "FreeStorageSpace"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+#   rackspace_managed        = true
+#   severity                 = "urgent"
+#   statistic                = "Average"
+#   threshold                = var.rds_alarm_free_space_limit
+#   unit                     = "Bytes"
+#   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
+# }
 
 module "rds_free_storage_space_alarm_email" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
@@ -433,6 +447,7 @@ module "efs_burst_credits" {
   alarm_description        = "EFS Burst Credits have dropped below ${var.efs_cw_burst_credit_threshold} for ${var.efs_cw_burst_credit_period} periods."
   alarm_name               = "${var.app_name}-EFSBurstCredits"
   comparison_operator      = "LessThanThreshold"
+  customer_alarms_enabled  = true
   evaluation_periods       = var.efs_cw_burst_credit_period
   metric_name              = "BurstCreditBalance"
   namespace                = "AWS/EFS"
@@ -456,6 +471,7 @@ module "redshift_cpu_alarm_high" {
   alarm_description        = "Alarm if CPU > ${var.redshift_cw_cpu_threshold}% for 5 minutes"
   alarm_name               = "${var.app_name}-Redshift-CPUAlarmHigh"
   comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
   evaluation_periods       = 5
   metric_name              = "CPUUtilization"
   namespace                = "AWS/Redshift"
@@ -476,6 +492,7 @@ module "redshift_cluster_health_ticket" {
   alarm_description        = "Cluster has entered unhealthy state, creating ticket"
   alarm_name               = "${var.app_name}-Redshift-CluterHealthTicket"
   comparison_operator      = "LessThanThreshold"
+  customer_alarms_enabled  = true
   evaluation_periods       = 5
   metric_name              = "HealthStatus"
   namespace                = "AWS/Redshift"
@@ -484,7 +501,7 @@ module "redshift_cluster_health_ticket" {
   rackspace_alarms_enabled = var.redshift_rackspace_alarms_enabled
   rackspace_managed        = true
   severity                 = "emergency"
-  statistic                = "Average"
+  statistic                = "Minimum"
   threshold                = 1
   dimensions               = data.null_data_source.redshift.*.outputs
 }
@@ -496,6 +513,7 @@ module "redshift_free_storage_space_ticket" {
   alarm_description        = "Consumed storage space has risen above threshold, sending email notification"
   alarm_name               = "${var.app_name}-Redshift-FreeStorageSpaceTicket"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
   evaluation_periods       = 30
   metric_name              = "PercentageDiskSpaceUsed"
   namespace                = "AWS/Redshift"
@@ -586,4 +604,74 @@ module "redis_curr_connections_alarm" {
   rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
   statistic                = "Average"
   threshold                = var.redis_curr_connections_threshold
+}
+
+####### FSX monitoring #######
+
+module "fsx_free_storage_space_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+
+  alarm_count              = var.fsx_free_space_threshold != "" ? var.number_fsx_filesystems : 0
+  alarm_description        = "Free storage space for FSX has fallen below the threshold, generating alarm"
+  alarm_name               = "${var.app_name}-FSx-free-storage-alarm"
+  comparison_operator      = "LessThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  evaluation_periods       = 30
+  metric_name              = "FreeStorageCapacity"
+  namespace                = "AWS/FSx"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.fsx_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "urgent"
+  statistic                = "Average"
+  threshold                = var.fsx_free_space_threshold
+  unit                     = "Bytes"
+  dimensions               = data.null_data_source.fsx.*.outputs
+}
+
+####### DynamoDB monitoring #######
+
+module "dynamodb_write_throttling_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+
+  alarm_count              = var.dynamo_write_throttling_threshold != "" ? var.number_dynamo_tables : 0
+  alarm_description        = "Sum of write throttling events are above the threshold, generating alarm"
+  alarm_name               = "${var.app_name}-DynamoDB-write-throttling-alarm"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  evaluation_periods       = 5
+  metric_name              = "WriteThrottleEvents"
+  namespace                = "AWS/DynamoDB"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.dynamo_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "urgent"
+  statistic                = "Sum"
+  threshold                = var.dynamo_write_throttling_threshold
+  unit                     = "Count"
+  dimensions               = data.null_data_source.dynamodb.*.outputs
+}
+
+module "dynamodb_read_throttling_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+
+  alarm_count              = var.dynamo_read_throttling_threshold != "" ? var.number_dynamo_tables : 0
+  alarm_description        = "Sum of read throttling events are above the threshold, generating alarm"
+  alarm_name               = "${var.app_name}-DynamoDB-read-throttling-alarm"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  evaluation_periods       = 5
+  metric_name              = "ReadThrottleEvents"
+  namespace                = "AWS/DynamoDB"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.dynamo_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "urgent"
+  statistic                = "Sum"
+  threshold                = var.dynamo_read_throttling_threshold
+  unit                     = "Count"
+  dimensions               = data.null_data_source.dynamodb.*.outputs
 }

@@ -52,7 +52,7 @@ variable "aurora_nodes" {
 }
 
 variable "number_redshift_nodes" {
-  description = "Number of EFS to monitor"
+  description = "Number of Redshift nodes to monitor"
   type        = number
   default     = 0
 }
@@ -83,6 +83,30 @@ variable "number_redis_clusters" {
 
 variable "redis_cluster_ids" {
   description = "Identifiers of Redis clusters to monitor. The list should match the length specified"
+  type        = list(string)
+  default     = []
+}
+
+variable "number_fsx_filesystems" {
+  description = "Number of FSX filesystems to monitor"
+  type        = number
+  default     = 0
+}
+
+variable "fsx_ids" {
+  description = "Identifiers of FSX filesystems to monitor. The list should match the length specified"
+  type        = list(string)
+  default     = []
+}
+
+variable "number_dynamo_tables" {
+  description = "Number of provisioned DynamoDB tables"
+  type        = number
+  default     = 0
+}
+
+variable "dynamo_tables" {
+  description = "Identifiers of DynamoDB tables to monitor. The list should match the length specified"
   type        = list(string)
   default     = []
 }
@@ -119,6 +143,18 @@ variable "redshift_rackspace_alarms_enabled" {
 
 variable "redis_rackspace_alarms_enabled" {
   description = "Specifies whether Redis (Elasticache) alarms will create a Rackspace ticket."
+  type        = bool
+  default     = false
+}
+
+variable "fsx_rackspace_alarms_enabled" {
+  description = "Specifies whether FSX alarms will create a Rackspace ticket."
+  type        = bool
+  default     = false
+}
+
+variable "dynamo_rackspace_alarms_enabled" {
+  description = "Specifies whether Dynamo alarms will create a Rackspace ticket."
   type        = bool
   default     = false
 }
@@ -251,6 +287,24 @@ variable "redis_curr_connections_evaluations" {
 
 variable "redis_curr_connections_threshold" {
   description = "(redis) The max number of current connections before generating an alarm. NOTE: If this variable is not set, the connections alarm will not be provisioned."
+  type        = string
+  default     = ""
+}
+
+variable "fsx_free_space_threshold" {
+  description = "Free Storage Space Limit Threshold (Bytes) for FSX"
+  type        = string
+  default     = ""
+}
+
+variable "dynamo_write_throttling_threshold" {
+  description = "Number of write throttling events on DynamoDB that will trigger an alarm"
+  type        = string
+  default     = ""
+}
+
+variable "dynamo_read_throttling_threshold" {
+  description = "Number of read throttling events on DynamoDB that will trigger an alarm"
   type        = string
   default     = ""
 }

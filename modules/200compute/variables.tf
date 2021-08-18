@@ -69,7 +69,29 @@ variable "number_lambda_functions" {
 }
 
 variable "lambda_names" {
-  description = "Name of the Lambda functions to monitor"
+  description = "Name of the Lambda functions to monitor. The list should match the length specified"
+  type        = list(string)
+  default     = []
+}
+
+variable "number_cloudfront_distributions" {
+  description = "Number of Cloudfront distributions to monitor"
+  default     = 0
+}
+
+variable "cloudfront_distribution_ids" {
+  description = "Cloudfront Id's to monitor. The list should match the length specified"
+  type        = list(string)
+  default     = []
+}
+
+variable "number_api_gws" {
+  description = "Number of API GW's to monitor"
+  default     = 0
+}
+
+variable "api_gw_names" {
+  description = "Name of the API GW's to monitor. The list should match the length specified"
   type        = list(string)
   default     = []
 }
@@ -105,7 +127,19 @@ variable "ecs_rackspace_alarms_enabled" {
 }
 
 variable "lambda_rackspace_alarms_enabled" {
-  description = "Specifies whether ECS alarms will create a Rackspace ticket"
+  description = "Specifies whether Lambda alarms will create a Rackspace ticket"
+  type        = bool
+  default     = false
+}
+
+variable "cloudfront_rackspace_alarms_enabled" {
+  description = "Specifies whether Cloudfront alarms will create a Rackspace ticket"
+  type        = bool
+  default     = false
+}
+
+variable "api_gw_rackspace_alarms_enabled" {
+  description = "Specifies whether API GW alarms will create a Rackspace ticket"
   type        = bool
   default     = false
 }
@@ -140,100 +174,28 @@ variable "ec2_cw_cpu_high_threshold" {
   default     = 90
 }
 
-variable "asg_enable_scaling_actions" {
-  description = "Should this autoscaling group be configured with scaling alarms to manage the desired count.  Set this variable to false if another process will manage the desired count, such as EKS Cluster Autoscaler."
-  type        = bool
-  default     = false
-}
-
-variable "asg_ec2_scale_down_adjustment" {
-  description = "Number of EC2 instances to scale down by at a time. Positive numbers will be converted to negative."
-  type        = string
-  default     = "-1"
-}
-
-variable "asg_ec2_scale_down_cool_down" {
-  description = "Time in seconds before any further trigger-related scaling can occur."
-  type        = string
-  default     = "60"
-}
-
-variable "asg_ec2_scale_up_adjustment" {
-  description = "Number of EC2 instances to scale up by at a time."
-  type        = string
-  default     = "1"
-}
-
-variable "asg_ec2_scale_up_cool_down" {
-  description = "Time in seconds before any further trigger-related scaling can occur."
-  type        = string
-  default     = "60"
-}
-
 variable "asg_terminated_instances" {
   description = "Specifies the maximum number of instances that can be terminated in a six hour period without generating a Cloudwatch Alarm."
   type        = string
   default     = "30"
 }
 
-variable "asg_cw_high_evaluations" {
-  description = "The number of periods over which data is compared to the specified threshold."
+variable "alb_unhealthy_target_threshold" {
+  description = "The value against which the calculation of unhealthy hosts behind an ALB. If this value is empty, an alarm that detects any unhealthy host will be created"
   type        = string
-  default     = "3"
+  default     = ""
 }
 
-variable "asg_cw_high_operator" {
-  description = "Math operator used by CloudWatch for alarms and triggers on ASG (high threshold)."
+variable "nlb_unhealthy_target_threshold" {
+  description = "The value against which the calculation of unhealthy hosts behind an NLB. If this value is empty, an alarm that detects any unhealthy host will be created"
   type        = string
-  default     = "GreaterThanThreshold"
-}
-
-variable "asg_cw_high_period" {
-  description = "Time the specified statistic is applied on ASG (high threshold). Must be in seconds that is also a multiple of 60."
-  type        = string
-  default     = "60"
-}
-
-variable "asg_cw_high_threshold" {
-  description = "The value against which the specified statistic is compared on ASG (high threshold)."
-  type        = string
-  default     = "60"
-}
-
-variable "asg_cw_low_evaluations" {
-  description = "The number of periods over which data is compared to the specified threshold on ASG (low)."
-  type        = string
-  default     = "3"
-}
-
-variable "asg_cw_low_operator" {
-  description = "Math operator used by CloudWatch for alarms and triggers on ASG (low threshold)."
-  type        = string
-  default     = "LessThanThreshold"
-}
-
-variable "asg_cw_low_period" {
-  description = "Time the specified statistic is applied on ASG (low threshold). Must be in seconds that is also a multiple of 60."
-  type        = string
-  default     = "300"
-}
-
-variable "asg_cw_low_threshold" {
-  description = "The value against which the specified statistic is compared on ASG (low threshold)."
-  type        = string
-  default     = "30"
-}
-
-variable "asg_cw_scaling_metric" {
-  description = "The metric to be used for scaling on ASG."
-  type        = string
-  default     = "CPUUtilization"
+  default     = ""
 }
 
 variable "alb_response_time_threshold" {
   description = "The value against which the specified statistic is compared on ALB response time alarm"
   type        = string
-  default     = "10"
+  default     = ""
 }
 
 variable "ecs_cpu_high_threshold" {
@@ -246,4 +208,34 @@ variable "ecs_memory_high_threshold" {
   description = "The value against which the specified statistic is compared on ECS memory alarm."
   type        = number
   default     = 75
+}
+
+variable "cloudfront_total_errors_threshold" {
+  description = "Maximum percentage of total errors on Cloudfront requests allowed before sending an alarms"
+  type        = string
+  default     = ""
+}
+
+variable "cloudfront_500_errors_threshold" {
+  description = "Maximum percentage of 500 errors (backend errors) on Cloudfront requests allowed before sending an alarms"
+  type        = string
+  default     = ""
+}
+
+variable "api_gw_500_errors_threshold" {
+  description = "Maximum number of 500 errors (backend errors) on API GW requests allowed before sending an alarms"
+  type        = string
+  default     = ""
+}
+
+variable "api_gw_400_errors_threshold" {
+  description = "Maximum number of 400 errors (backend errors) on API GW requests allowed before sending an alarms"
+  type        = string
+  default     = ""
+}
+
+variable "api_gw_latency_threshold" {
+  description = "Maximum latency time in milliseconds on API GW requests allowed before sending an alarms"
+  type        = string
+  default     = ""
 }

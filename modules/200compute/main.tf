@@ -10,6 +10,20 @@ data "aws_region" "current_region" {}
 
 data "aws_caller_identity" "current_account" {}
 
+# locals {
+#   rackspace_alarm_config = var.elb_rackspace_alarms_enabled ? "enabled" : "disabled"
+#
+#   rackspace_alarm_actions = {
+#     enabled  = [local.rackspace_sns_topic[var.severity]]
+#     disabled = []
+#   }
+#   rackspace_sns_topic = {
+#     standard  = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-standard"
+#     urgent    = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-urgent"
+#     emergency = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-emergency"
+#   }
+# }
+
 ##### Placeholder for services #####
 
 data "null_data_source" "ec2_instances" {
@@ -54,6 +68,21 @@ data "null_data_source" "lambda" {
   count = var.number_lambda_functions
   inputs = {
     FunctionName = element(var.lambda_names, count.index)
+  }
+}
+
+data "null_data_source" "cloudfront" {
+  count = var.number_cloudfront_distributions
+  inputs = {
+    DistributionId = element(var.cloudfront_distribution_ids, count.index)
+    Region         = "Global"
+  }
+}
+
+data "null_data_source" "api_gw" {
+  count = var.number_api_gws
+  inputs = {
+    ApiName = element(var.api_gw_names, count.index)
   }
 }
 
@@ -182,26 +211,6 @@ module "ec2_cpu_alarm_high" {
 
 ##### Auto Scaling Group Monitoring #####
 
-resource "aws_autoscaling_policy" "ec2_scale_up_policy" {
-  count = var.asg_enable_scaling_actions ? var.number_asg : 0
-
-  adjustment_type        = "ChangeInCapacity"
-  autoscaling_group_name = element(var.asg_names, count.index)
-  cooldown               = var.asg_ec2_scale_up_cool_down
-  name                   = join("-", compact(["ec2_scale_up_policy", var.app_name, format("%03d", count.index + 1)]))
-  scaling_adjustment     = var.asg_ec2_scale_up_adjustment
-}
-
-resource "aws_autoscaling_policy" "ec2_scale_down_policy" {
-  count = var.asg_enable_scaling_actions ? var.number_asg : 0
-
-  adjustment_type        = "ChangeInCapacity"
-  autoscaling_group_name = element(var.asg_names, count.index)
-  cooldown               = var.asg_ec2_scale_down_cool_down
-  name                   = join("-", compact(["ec2_scale_down_policy", var.app_name, format("%03d", count.index + 1)]))
-  scaling_adjustment     = var.asg_ec2_scale_down_adjustment > 0 ? -var.asg_ec2_scale_down_adjustment : var.asg_ec2_scale_down_adjustment
-}
-
 module "asg_group_terminating_instances" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
@@ -223,44 +232,12 @@ module "asg_group_terminating_instances" {
   unit                     = "Count"
 }
 
-resource "aws_cloudwatch_metric_alarm" "asg_scale_alarm_high" {
-  count = var.asg_enable_scaling_actions ? var.number_asg : 0
-
-  alarm_actions       = [element(aws_autoscaling_policy.ec2_scale_up_policy.*.arn, count.index)]
-  alarm_description   = "Scale-up if ${var.asg_cw_scaling_metric} ${var.asg_cw_high_operator} ${var.asg_cw_high_threshold}% for ${var.asg_cw_high_period} seconds ${var.asg_cw_high_evaluations} times."
-  alarm_name          = join("-", compact(["ASG-ScaleAlarmHigh", var.app_name, format("%03d", count.index + 1)]))
-  comparison_operator = var.asg_cw_high_operator
-  evaluation_periods  = var.asg_cw_high_evaluations
-  metric_name         = var.asg_cw_scaling_metric
-  namespace           = "AWS/EC2"
-  period              = var.asg_cw_high_period
-  statistic           = "Average"
-  threshold           = var.asg_cw_high_threshold
-  dimensions          = data.null_data_source.asg[count.index].outputs
-}
-
-resource "aws_cloudwatch_metric_alarm" "asg_scale_alarm_low" {
-  count = var.asg_enable_scaling_actions ? var.number_asg : 0
-
-  alarm_actions       = [element(aws_autoscaling_policy.ec2_scale_down_policy.*.arn, count.index)]
-  alarm_description   = "Scale-down if ${var.asg_cw_scaling_metric} ${var.asg_cw_low_operator} ${var.asg_cw_low_threshold}% for ${var.asg_cw_low_period} seconds ${var.asg_cw_low_evaluations} times."
-  alarm_name          = join("-", compact(["ASG-ScaleAlarmLow", var.app_name, format("%03d", count.index + 1)]))
-  comparison_operator = var.asg_cw_low_operator
-  evaluation_periods  = var.asg_cw_low_evaluations
-  metric_name         = var.asg_cw_scaling_metric
-  namespace           = "AWS/EC2"
-  period              = var.asg_cw_low_period
-  statistic           = "Average"
-  threshold           = var.asg_cw_low_threshold
-  dimensions          = data.null_data_source.asg[count.index].outputs
-}
-
 ##### Elastic Load Balancers & Target Groups Monitoring #####
 
 module "alb_unhealthy_host_count_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
-  alarm_count              = var.number_alb_tg
+  alarm_count              = var.alb_unhealthy_target_threshold == "" ? var.number_alb_tg : 0
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
   alarm_name               = "${var.app_name}_alb_unhealthy_host_count_alarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
@@ -279,10 +256,58 @@ module "alb_unhealthy_host_count_alarm" {
   unit                     = "Count"
 }
 
+resource "aws_cloudwatch_metric_alarm" "alb_unhealth_host_percentage_alarm" {
+  count = var.alb_unhealthy_target_threshold != "" ? var.number_alb_tg : 0
+
+  alarm_description   = "Percentage of unhealthy targets is bigger than threshold, creating ticket."
+  alarm_name          = var.number_alb_tg > 1 ? format("%v-%03d", "${var.app_name}_alb_unhealthy_percentage_alarm", count.index + 1) : "${var.app_name}_alb_unhealthy_percentage_alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  threshold           = var.alb_unhealthy_target_threshold
+
+  metric_query {
+    id          = "e1"
+    expression  = "100*(m1/(m1+m2))"
+    label       = "UnHealthyHostPercentange"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "m1"
+
+    metric {
+      metric_name = "UnHealthyHostCount"
+      namespace   = "AWS/ApplicationELB"
+      period      = "60"
+      stat        = "Maximum"
+      unit        = "Count"
+      dimensions  = data.null_data_source.alb_tg[count.index].outputs
+    }
+  }
+
+  metric_query {
+    id = "m2"
+
+    metric {
+      metric_name = "HealthyHostCount"
+      namespace   = "AWS/ApplicationELB"
+      period      = "60"
+      stat        = "Maximum"
+      unit        = "Count"
+      dimensions  = data.null_data_source.alb_tg[count.index].outputs
+    }
+  }
+
+  alarm_actions = concat(
+    var.notification_topic,
+    local.rackspace_alarm_actions[local.rackspace_alarm_config],
+  )
+}
+
 module "alb_target_response_time_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
-  alarm_count              = var.number_alb_tg
+  alarm_count              = var.alb_response_time_threshold != "" ? var.number_alb_tg : 0
   alarm_description        = "Target response time is higher than threshold, creating ticket."
   alarm_name               = "${var.app_name}_alb_target_response_time_alarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
@@ -304,7 +329,7 @@ module "alb_target_response_time_alarm" {
 module "nlb_unhealthy_host_count_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
-  alarm_count              = var.number_nlb_tg
+  alarm_count              = var.nlb_unhealthy_target_threshold == "" ? var.number_nlb_tg : 0
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
   alarm_name               = "${var.app_name}_nlb_unhealthy_host_count_alarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
@@ -321,6 +346,54 @@ module "nlb_unhealthy_host_count_alarm" {
   statistic                = "Maximum"
   threshold                = 1
   unit                     = "Count"
+}
+
+resource "aws_cloudwatch_metric_alarm" "nlb_unhealth_host_percentage_alarm" {
+  count = var.nlb_unhealthy_target_threshold != "" ? var.number_nlb_tg : 0
+
+  alarm_description   = "Percentage of unhealthy targets is bigger than threshold, creating ticket."
+  alarm_name          = var.number_alb_tg > 1 ? format("%v-%03d", "${var.app_name}_nlb_unhealthy_percentage_alarm", count.index + 1) : "${var.app_name}_alb_unhealthy_percentage_alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  threshold           = var.nlb_unhealthy_target_threshold
+
+  metric_query {
+    id          = "e1"
+    expression  = "100*(m1/(m1+m2))"
+    label       = "UnHealthyHostPercentange"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "m1"
+
+    metric {
+      metric_name = "UnHealthyHostCount"
+      namespace   = "AWS/NetworkELB"
+      period      = "60"
+      stat        = "Maximum"
+      unit        = "Count"
+      dimensions  = data.null_data_source.nlb_tg[count.index].outputs
+    }
+  }
+
+  metric_query {
+    id = "m2"
+
+    metric {
+      metric_name = "HealthyHostCount"
+      namespace   = "AWS/NetworkELB"
+      period      = "60"
+      stat        = "Maximum"
+      unit        = "Count"
+      dimensions  = data.null_data_source.nlb_tg[count.index].outputs
+    }
+  }
+
+  alarm_actions = concat(
+    var.notification_topic,
+    local.rackspace_alarm_actions[local.rackspace_alarm_config],
+  )
 }
 
 ####### ECS monitoring #######
@@ -391,4 +464,118 @@ module "lambda_errors_alarm" {
   statistic                = "Minimum"
   threshold                = "0"
   unit                     = "Count"
+}
+
+####### Cloudfront monitoring #######
+
+module "cloudfront_total_errors_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.cloudfront_total_errors_threshold != "" ? var.number_cloudfront_distributions : 0
+  alarm_description        = "Percentage of total errors is greater than or equal to threshold, creating ticket."
+  alarm_name               = "${var.app_name}_cloudfront_total_errors_alarm"
+  customer_alarms_enabled  = true
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = data.null_data_source.cloudfront.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "TotalErrorRate"
+  namespace                = "AWS/CloudFront"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.cloudfront_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Average"
+  threshold                = var.cloudfront_total_errors_threshold
+  unit                     = "Percent"
+}
+
+module "cloudfront_500_errors_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.cloudfront_500_errors_threshold != "" ? var.number_cloudfront_distributions : 0
+  alarm_description        = "Percentage of 500 errors is greater than or equal to threshold, creating ticket."
+  alarm_name               = "${var.app_name}_cloudfront_500_errors_alarm"
+  customer_alarms_enabled  = true
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = data.null_data_source.cloudfront.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "5xxErrorRate"
+  namespace                = "AWS/CloudFront"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.cloudfront_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Average"
+  threshold                = var.cloudfront_500_errors_threshold
+  unit                     = "Percent"
+}
+
+####### API Gateway #######
+
+module "api_gw_500_errors_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.api_gw_500_errors_threshold != "" ? var.number_api_gws : 0
+  alarm_description        = "Number of 500 errors is greater than or equal to threshold, creating ticket."
+  alarm_name               = "${var.app_name}_api_gw_500_errors_alarm"
+  customer_alarms_enabled  = true
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = data.null_data_source.api_gw.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "5XXError"
+  namespace                = "AWS/ApiGateway"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.api_gw_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Sum"
+  threshold                = var.api_gw_500_errors_threshold
+  unit                     = "Count"
+}
+
+module "api_gw_400_errors_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.api_gw_400_errors_threshold != "" ? var.number_api_gws : 0
+  alarm_description        = "Number of 400 errors is greater than or equal to threshold, creating ticket."
+  alarm_name               = "${var.app_name}_api_gw_400_errors_alarm"
+  customer_alarms_enabled  = true
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = data.null_data_source.api_gw.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "4XXError"
+  namespace                = "AWS/ApiGateway"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.api_gw_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Sum"
+  threshold                = var.api_gw_400_errors_threshold
+  unit                     = "Count"
+}
+
+module "api_gw_latency_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.api_gw_latency_threshold != "" ? var.number_api_gws : 0
+  alarm_description        = "Latency is greater than or equal to threshold, creating ticket."
+  alarm_name               = "${var.app_name}_api_gw_latency_alarm"
+  customer_alarms_enabled  = true
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = data.null_data_source.api_gw.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "Latency"
+  namespace                = "AWS/ApiGateway"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.api_gw_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "emergency"
+  statistic                = "Average"
+  threshold                = var.api_gw_latency_threshold
+  unit                     = "Milliseconds"
 }
