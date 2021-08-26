@@ -177,6 +177,36 @@ variable "ec2_cw_cpu_high_threshold" {
   default     = 90
 }
 
+variable "cw_namespace_linux" {
+  description = "Namespace for the custom metrics on Linux Instances"
+  type        = string
+  default     = "CWAgent"
+}
+
+variable "cw_namespace_windows" {
+  description = "Namespace for the custom metrics on Windows Instances"
+  type        = string
+  default     = "CWAgent"
+}
+
+variable "ec2_memory_linux_threshold" {
+  description = "Maximum memory utilization before triggering an alarm. Only applies for Linux instances"
+  type        = number
+  default     = 90
+}
+
+variable "ec2_disk_linux_threshold" {
+  description = "Maximum EBS volume utilization before triggering an alarm. Only applies for Linux instances"
+  type        = number
+  default     = 90
+}
+
+variable "ec2_memory_linux_threshold" {
+  description = "Minimum memory utilization before triggering an alarm. Only applies for Windows instances"
+  type        = number
+  default     = 10
+}
+
 variable "asg_terminated_instances" {
   description = "Specifies the maximum number of instances that can be terminated in a six hour period without generating a Cloudwatch Alarm."
   type        = string

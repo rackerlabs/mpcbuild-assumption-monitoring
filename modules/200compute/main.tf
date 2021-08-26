@@ -10,19 +10,19 @@ data "aws_region" "current_region" {}
 
 data "aws_caller_identity" "current_account" {}
 
-# locals {
-#   rackspace_alarm_config = var.elb_rackspace_alarms_enabled ? "enabled" : "disabled"
-#
-#   rackspace_alarm_actions = {
-#     enabled  = [local.rackspace_sns_topic[var.severity]]
-#     disabled = []
-#   }
-#   rackspace_sns_topic = {
-#     standard  = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-standard"
-#     urgent    = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-urgent"
-#     emergency = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-emergency"
-#   }
-# }
+locals {
+  rackspace_alarm_config = var.elb_rackspace_alarms_enabled ? "enabled" : "disabled"
+
+  rackspace_alarm_actions = {
+    enabled  = [local.rackspace_sns_topic[var.severity]]
+    disabled = []
+  }
+  rackspace_sns_topic = {
+    standard  = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-standard"
+    urgent    = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-urgent"
+    emergency = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-emergency"
+  }
+}
 
 ##### Placeholder for services #####
 
