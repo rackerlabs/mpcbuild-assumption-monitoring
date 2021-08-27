@@ -201,7 +201,7 @@ variable "ec2_disk_linux_threshold" {
   default     = 90
 }
 
-variable "ec2_memory_linux_threshold" {
+variable "ec2_memory_windows_threshold" {
   description = "Minimum memory utilization before triggering an alarm. Only applies for Windows instances"
   type        = number
   default     = 10
