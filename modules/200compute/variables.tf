@@ -15,6 +15,54 @@ variable "ec2_instance_ids" {
   default     = []
 }
 
+variable "number_win_mem" {
+  description = "Number of Windows instances currently with metrics related to memory usage"
+  type        = number
+  default     = 0
+}
+
+variable "win_mem_list" {
+  description = "Maps for the Windows instances including the total available memory"
+  type        = list(map(string))
+  default     = [{}]
+}
+
+variable "number_win_disk" {
+  description = "Number of EBS volumes associated to Windows instances that are currently reporting metrics"
+  type        = number
+  default     = 0
+}
+
+variable "win_disk_list" {
+  description = "Maps for the Windows instances including the device units associated to the volumes"
+  type        = list(map(string))
+  default     = [{}]
+}
+
+variable "number_lin_mem" {
+  description = "Number of Linux instances currently with metrics related to memory usage"
+  type        = number
+  default     = 0
+}
+
+variable "lin_mem_list" {
+  description = "List of Linux instances reporting memory metrics"
+  type        = list(string)
+  default     = []
+}
+
+variable "number_lin_disk" {
+  description = "Number of EBS volumes associated to Linux instances that are currently reporting metrics"
+  type        = number
+  default     = 0
+}
+
+variable "lin_disk_list" {
+  description = "Maps for the Linux instances including the device names associated to the volumes"
+  type        = list(map(string))
+  default     = [{}]
+}
+
 variable "number_asg" {
   description = "Number of AutoScaling Groups to monitor "
   type        = number
@@ -203,6 +251,12 @@ variable "ec2_disk_linux_threshold" {
 
 variable "ec2_memory_windows_threshold" {
   description = "Minimum memory utilization before triggering an alarm. Only applies for Windows instances"
+  type        = number
+  default     = 10
+}
+
+variable "ec2_disk_windows_threshold" {
+  description = "Minimum EBS volume utilization before triggering an alarm. Only applies for Windows instances"
   type        = number
   default     = 10
 }

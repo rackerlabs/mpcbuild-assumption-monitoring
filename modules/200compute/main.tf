@@ -18,9 +18,9 @@ locals {
     disabled = []
   }
   rackspace_sns_topic = {
-    standard  = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-standard"
-    urgent    = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-urgent"
-    emergency = "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rackspace-support-emergency"
+    standard  = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-standard"
+    urgent    = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-urgent"
+    emergency = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-emergency"
   }
 }
 
@@ -83,6 +83,38 @@ data "null_data_source" "api_gw" {
   count = var.number_api_gws
   inputs = {
     ApiName = element(var.api_gw_names, count.index)
+  }
+}
+
+data "null_data_source" "ec2_memory_windows" {
+  count = var.number_win_mem
+  inputs = {
+    InstanceId = lookup(var.win_mem_list[count.index], "id")
+    objectname = "Memory"
+  }
+}
+
+data "null_data_source" "ec2_disk_windows" {
+  count = var.number_win_disk
+  inputs = {
+    InstanceId = lookup(var.win_disk_list[count.index], "id")
+    instance   = lookup(var.win_disk_list[count.index], "disk")
+    objectname = "LogicalDisk"
+  }
+}
+
+data "null_data_source" "ec2_memory_linux" {
+  count = var.number_lin_mem
+  inputs = {
+    InstanceId = element(var.lin_mem_list, count.index)
+  }
+}
+
+data "null_data_source" "ec2_disk_linux" {
+  count = var.number_lin_disk
+  inputs = {
+    InstanceId = lookup(var.lin_disk_list[count.index], "id")
+    device     = lookup(var.lin_disk_list[count.index], "disk")
   }
 }
 
@@ -206,6 +238,29 @@ module "ec2_cpu_alarm_high" {
   rackspace_managed        = true
   statistic                = "Average"
   threshold                = var.ec2_cw_cpu_high_threshold
+  unit                     = "Percent"
+}
+
+##### EC2 custom monitoring ######
+
+module "ec2_win_disk_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_win_disk
+  alarm_description        = "Free disk available is less than ${var.ec2_disk_windows_threshold}"
+  alarm_name               = join("-", ["EC2-Windows", "DiskLowAlarm", var.app_name])
+  comparison_operator      = "LessThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = data.null_data_source.ec2_disk_windows.*.outputs
+  evaluation_periods       = 10
+  metric_name              = "LogicalDisk % Free Space"
+  notification_topic       = var.notification_topic
+  namespace                = var.cw_namespace_windows
+  period                   = 60
+  rackspace_alarms_enabled = false
+  rackspace_managed        = true
+  statistic                = "Average"
+  threshold                = var.ec2_disk_windows_threshold
   unit                     = "Percent"
 }
 
