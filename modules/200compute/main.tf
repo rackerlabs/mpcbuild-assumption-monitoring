@@ -14,7 +14,7 @@ locals {
   rackspace_alarm_config = var.elb_rackspace_alarms_enabled ? "enabled" : "disabled"
 
   rackspace_alarm_actions = {
-    enabled  = [local.rackspace_sns_topic[var.severity]]
+    enabled  = [local.rackspace_sns_topic["emergency"]]
     disabled = []
   }
   rackspace_sns_topic = {
@@ -247,8 +247,8 @@ module "ec2_win_disk_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_win_disk
-  alarm_description        = "Free disk available is less than ${var.ec2_disk_windows_threshold}"
-  alarm_name               = join("-", ["EC2-Windows", "DiskLowAlarm", var.app_name])
+  alarm_description        = "Free disk available is less than ${var.ec2_disk_windows_threshold}%"
+  alarm_name               = join("-", ["EC2-Windows", "DiskUsageAlarm", var.app_name])
   comparison_operator      = "LessThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.ec2_disk_windows.*.outputs
@@ -261,6 +261,48 @@ module "ec2_win_disk_alarm" {
   rackspace_managed        = true
   statistic                = "Average"
   threshold                = var.ec2_disk_windows_threshold
+  unit                     = "Percent"
+}
+
+module "ec2_linux_disk_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_lin_disk
+  alarm_description        = "Disk utilization is more than ${var.ec2_disk_linux_threshold}%"
+  alarm_name               = join("-", ["EC2-Linux", "DiskUsageAlarm", var.app_name])
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = data.null_data_source.ec2_disk_linux.*.outputs
+  evaluation_periods       = 10
+  metric_name              = "disk_used_percent"
+  notification_topic       = var.notification_topic
+  namespace                = var.cw_namespace_linux
+  period                   = 60
+  rackspace_alarms_enabled = false
+  rackspace_managed        = true
+  statistic                = "Average"
+  threshold                = var.ec2_disk_linux_threshold
+  unit                     = "Percent"
+}
+
+module "ec2_linux_memory_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_lin_mem
+  alarm_description        = "Memory utilization is more than ${var.ec2_memory_linux_threshold}%"
+  alarm_name               = join("-", ["EC2-Linux", "MemoryUsageAlarm", var.app_name])
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = data.null_data_source.ec2_memory_linux.*.outputs
+  evaluation_periods       = 10
+  metric_name              = "MemoryUtilization"
+  notification_topic       = var.notification_topic
+  namespace                = var.cw_namespace_linux
+  period                   = 60
+  rackspace_alarms_enabled = false
+  rackspace_managed        = true
+  statistic                = "Average"
+  threshold                = var.ec2_memory_linux_threshold
   unit                     = "Percent"
 }
 
