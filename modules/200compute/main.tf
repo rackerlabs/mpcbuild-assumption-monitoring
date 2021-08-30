@@ -264,6 +264,27 @@ module "ec2_win_disk_alarm" {
   unit                     = "Percent"
 }
 
+resource "aws_cloudwatch_metric_alarm" "ec2_win_memory_alarm" {
+  count = var.number_lin_mem
+
+  alarm_description   = "Memory available is less than ${var.ec2_memory_windows_threshold}%"
+  alarm_name          = format("%v-%03d", "EC2-Windows-MemoryUsageAlarm-${var.app_name}", count.index + 1)
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 10
+  namespace           = var.cw_namespace_windows
+  metric_name         = "Memory Available MBytes"
+  period              = 60
+  statistic           = "Average"
+  unit                = "Megabytes"
+  threshold           = var.ec2_memory_windows_threshold * var.win_mem_list[count.index]["memory"]
+  dimensions          = data.null_data_source.ec2_memory_windows[count.index].outputs
+
+  alarm_actions = concat(
+    var.notification_topic,
+    local.rackspace_alarm_actions[local.rackspace_alarm_config],
+  )
+}
+
 module "ec2_linux_disk_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
