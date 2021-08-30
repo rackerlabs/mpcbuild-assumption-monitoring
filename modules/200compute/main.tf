@@ -11,7 +11,8 @@ data "aws_region" "current_region" {}
 data "aws_caller_identity" "current_account" {}
 
 locals {
-  rackspace_alarm_config = var.elb_rackspace_alarms_enabled ? "enabled" : "disabled"
+  rackspace_alarm_config_ec2 = var.ec2_rackspace_alarms_enabled ? "enabled" : "disabled"
+  rackspace_alarm_config_elb = var.elb_rackspace_alarms_enabled ? "enabled" : "disabled"
 
   rackspace_alarm_actions = {
     enabled  = [local.rackspace_sns_topic["emergency"]]
@@ -265,7 +266,7 @@ module "ec2_win_disk_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ec2_win_memory_alarm" {
-  count = var.number_lin_mem
+  count = var.number_win_mem
 
   alarm_description   = "Memory available is less than ${var.ec2_memory_windows_threshold}%"
   alarm_name          = format("%v-%03d", "EC2-Windows-MemoryUsageAlarm-${var.app_name}", count.index + 1)
@@ -276,12 +277,12 @@ resource "aws_cloudwatch_metric_alarm" "ec2_win_memory_alarm" {
   period              = 60
   statistic           = "Average"
   unit                = "Megabytes"
-  threshold           = var.ec2_memory_windows_threshold * var.win_mem_list[count.index]["memory"]
+  threshold           = floor((var.ec2_memory_windows_threshold * 0.01) * var.win_mem_list[count.index]["memory"])
   dimensions          = data.null_data_source.ec2_memory_windows[count.index].outputs
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config],
+    local.rackspace_alarm_actions[local.rackspace_alarm_config_ec2],
   )
 }
 
@@ -418,7 +419,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealth_host_percentage_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config],
+    local.rackspace_alarm_actions[local.rackspace_alarm_config_elb],
   )
 }
 
