@@ -106,48 +106,6 @@ data "null_data_source" "dynamodb" {
 
 ##### RDS Monitoring #####
 
-# module "rds_free_storage_space_ticket" {
-#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
-#
-#   alarm_count              = var.number_rds_instances
-#   alarm_description        = "Free storage space has fallen below threshold, generating ticket."
-#   alarm_name               = "${var.app_name}-rds-free-storage-ticket"
-#   comparison_operator      = "LessThanOrEqualToThreshold"
-#   evaluation_periods       = 30
-#   metric_name              = "FreeStorageSpace"
-#   namespace                = "AWS/RDS"
-#   notification_topic       = var.notification_topic
-#   period                   = 60
-#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-#   rackspace_managed        = true
-#   severity                 = "urgent"
-#   statistic                = "Average"
-#   threshold                = var.rds_alarm_free_space_limit
-#   unit                     = "Bytes"
-#   dimensions               = data.null_data_source.rds_instances.*.outputs
-# }
-#
-# module "rds_replica_free_storage_space_ticket" {
-#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
-#
-#   alarm_count              = var.number_rds_read_replicas
-#   alarm_description        = "Free storage space has fallen below threshold, generating ticket."
-#   alarm_name               = "${var.app_name}-rds-replica-free-storage-ticket"
-#   comparison_operator      = "LessThanOrEqualToThreshold"
-#   evaluation_periods       = 30
-#   metric_name              = "FreeStorageSpace"
-#   namespace                = "AWS/RDS"
-#   notification_topic       = var.notification_topic
-#   period                   = 60
-#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-#   rackspace_managed        = true
-#   severity                 = "urgent"
-#   statistic                = "Average"
-#   threshold                = var.rds_alarm_free_space_limit
-#   unit                     = "Bytes"
-#   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
-# }
-
 # module "rds_free_storage_space_alarm_email" {
 #   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 #
@@ -230,92 +188,92 @@ resource "aws_cloudwatch_metric_alarm" "rds_replica_free_storage_space_alarm" {
   )
 }
 
-module "rds_write_iops_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+# module "rds_write_iops_high_alarm_email" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_instances
+#   alarm_description        = "Alarm if WriteIOPs > ${var.rds_alarm_write_iops_limit} for 5 minutes"
+#   alarm_name               = "${var.app_name}-rds-write-iops-high-email"
+#   comparison_operator      = "GreaterThanThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = 5
+#   metric_name              = "WriteIOPS"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+#   statistic                = "Average"
+#   threshold                = var.rds_alarm_write_iops_limit
+#   unit                     = "Count/Second"
+#   dimensions               = data.null_data_source.rds_instances.*.outputs
+# }
+#
+# module "rds_replica_write_iops_high_alarm_email" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_read_replicas
+#   alarm_description        = "Alarm if WriteIOPs > ${var.rds_alarm_write_iops_limit} for 5 minutes"
+#   alarm_name               = "${var.app_name}-rds-replica-write-iops-high-email"
+#   comparison_operator      = "GreaterThanThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = 5
+#   metric_name              = "WriteIOPS"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+#   statistic                = "Average"
+#   threshold                = var.rds_alarm_write_iops_limit
+#   unit                     = "Count/Second"
+#   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
+# }
+#
+# module "rds_read_iops_high_alarm_email" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_instances
+#   alarm_description        = "Alarm if ReadIOPs > ${var.rds_alarm_read_iops_limit} for 5 minutes"
+#   alarm_name               = "${var.app_name}-rds-read-iops-high-email"
+#   comparison_operator      = "GreaterThanThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = 5
+#   metric_name              = "ReadIOPS"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+#   statistic                = "Average"
+#   threshold                = var.rds_alarm_read_iops_limit
+#   unit                     = "Count/Second"
+#   dimensions               = data.null_data_source.rds_instances.*.outputs
+# }
+#
+# module "rds_replica_read_iops_high_alarm_email" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_read_replicas
+#   alarm_description        = "Alarm if ReadIOPs > ${var.rds_alarm_read_iops_limit} for 5 minutes"
+#   alarm_name               = "${var.app_name}-rds-replica-read-iops-high-email"
+#   comparison_operator      = "GreaterThanThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = 5
+#   metric_name              = "ReadIOPS"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+#   statistic                = "Average"
+#   threshold                = var.rds_alarm_read_iops_limit
+#   unit                     = "Count/Second"
+#   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
+# }
 
-  alarm_count              = var.number_rds_instances
-  alarm_description        = "Alarm if WriteIOPs > ${var.rds_alarm_write_iops_limit} for 5 minutes"
-  alarm_name               = "${var.app_name}-rds-write-iops-high-email"
-  comparison_operator      = "GreaterThanThreshold"
-  customer_alarms_enabled  = true
-  evaluation_periods       = 5
-  metric_name              = "WriteIOPS"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-  statistic                = "Average"
-  threshold                = var.rds_alarm_write_iops_limit
-  unit                     = "Count/Second"
-  dimensions               = data.null_data_source.rds_instances.*.outputs
-}
-
-module "rds_replica_write_iops_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
-
-  alarm_count              = var.number_rds_read_replicas
-  alarm_description        = "Alarm if WriteIOPs > ${var.rds_alarm_write_iops_limit} for 5 minutes"
-  alarm_name               = "${var.app_name}-rds-replica-write-iops-high-email"
-  comparison_operator      = "GreaterThanThreshold"
-  customer_alarms_enabled  = true
-  evaluation_periods       = 5
-  metric_name              = "WriteIOPS"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-  statistic                = "Average"
-  threshold                = var.rds_alarm_write_iops_limit
-  unit                     = "Count/Second"
-  dimensions               = data.null_data_source.rds_read_replicas.*.outputs
-}
-
-module "rds_read_iops_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
-
-  alarm_count              = var.number_rds_instances
-  alarm_description        = "Alarm if ReadIOPs > ${var.rds_alarm_read_iops_limit} for 5 minutes"
-  alarm_name               = "${var.app_name}-rds-read-iops-high-email"
-  comparison_operator      = "GreaterThanThreshold"
-  customer_alarms_enabled  = true
-  evaluation_periods       = 5
-  metric_name              = "ReadIOPS"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-  statistic                = "Average"
-  threshold                = var.rds_alarm_read_iops_limit
-  unit                     = "Count/Second"
-  dimensions               = data.null_data_source.rds_instances.*.outputs
-}
-
-module "rds_replica_read_iops_high_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
-
-  alarm_count              = var.number_rds_read_replicas
-  alarm_description        = "Alarm if ReadIOPs > ${var.rds_alarm_read_iops_limit} for 5 minutes"
-  alarm_name               = "${var.app_name}-rds-replica-read-iops-high-email"
-  comparison_operator      = "GreaterThanThreshold"
-  customer_alarms_enabled  = true
-  evaluation_periods       = 5
-  metric_name              = "ReadIOPS"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-  statistic                = "Average"
-  threshold                = var.rds_alarm_read_iops_limit
-  unit                     = "Count/Second"
-  dimensions               = data.null_data_source.rds_read_replicas.*.outputs
-}
-
-module "rds_cpu_high_alarm_email" {
+module "rds_cpu_high_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_instances
   alarm_description        = "Alarm if CPU > ${var.rds_alarm_cpu_limit} for 15 minutes"
-  alarm_name               = "${var.app_name}-rds-cpu-high-email"
+  alarm_name               = "RDS-CPUUtilizationAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -330,12 +288,12 @@ module "rds_cpu_high_alarm_email" {
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
-module "rds_replica_cpu_high_alarm_email" {
+module "rds_replica_cpu_high_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Alarm if CPU > ${var.rds_alarm_cpu_limit} for 15 minutes"
-  alarm_name               = "${var.app_name}-rds-replica-cpu-high-email"
+  alarm_name               = "RDS-Replica-CPUUtilizationAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -350,33 +308,33 @@ module "rds_replica_cpu_high_alarm_email" {
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
-module "replica_lag_alarm_ticket" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+# module "replica_lag_alarm_ticket" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_read_replicas
+#   alarm_description        = "ReplicaLag has exceeded threshold, generating ticket.."
+#   alarm_name               = "RDS-Replica-LagAlarm-${var.app_name}"
+#   comparison_operator      = "GreaterThanOrEqualToThreshold"
+#   evaluation_periods       = 5
+#   metric_name              = "ReplicaLag"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+#   rackspace_managed        = true
+#   severity                 = "urgent"
+#   statistic                = "Average"
+#   threshold                = 3600
+#   unit                     = "Seconds"
+#   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
+# }
 
-  alarm_count              = var.number_rds_read_replicas
-  alarm_description        = "ReplicaLag has exceeded threshold, generating ticket.."
-  alarm_name               = "${var.app_name}-replica-lag-ticket"
-  comparison_operator      = "GreaterThanOrEqualToThreshold"
-  evaluation_periods       = 5
-  metric_name              = "ReplicaLag"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
-  rackspace_managed        = true
-  severity                 = "urgent"
-  statistic                = "Average"
-  threshold                = 3600
-  unit                     = "Seconds"
-  dimensions               = data.null_data_source.rds_read_replicas.*.outputs
-}
-
-module "replica_lag_alarm_email" {
+module "replica_lag_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "ReplicaLag has exceeded threshold."
-  alarm_name               = "${var.app_name}-replica-lag-email"
+  alarm_name               = "RDS-Replica-LagAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 3
@@ -386,17 +344,17 @@ module "replica_lag_alarm_email" {
   period                   = 60
   rackspace_alarms_enabled = false
   statistic                = "Average"
-  threshold                = 3600
+  threshold                = var.rds_replica_lag_threshold
   unit                     = "Seconds"
   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 }
 
-module "rds_depth_queue_alarm_email" {
+module "rds_depth_queue_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.rds_depth_queue_threshold != "" ? var.number_rds_instances : 0
   alarm_description        = "Alarm if Depth queue is > ${var.rds_depth_queue_threshold} for 15 minutes"
-  alarm_name               = "${var.app_name}-rds-depth-queue-email"
+  alarm_name               = "RDS-DepthQueueAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -411,12 +369,12 @@ module "rds_depth_queue_alarm_email" {
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
-module "rds_read_latency_alarm_email" {
+module "rds_read_latency_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.rds_read_latency_threshold != "" ? var.number_rds_instances : 0
   alarm_description        = "Alarm if read latency is > ${var.rds_read_latency_threshold} for 15 minutes"
-  alarm_name               = "${var.app_name}-rds-read-latency-email"
+  alarm_name               = "RDS-ReadLatencyAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -431,12 +389,12 @@ module "rds_read_latency_alarm_email" {
   dimensions               = data.null_data_source.rds_instances.*.outputs
 }
 
-module "rds_write_latency_alarm_email" {
+module "rds_write_latency_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
 
   alarm_count              = var.rds_write_latency_threshold != "" ? var.number_rds_instances : 0
   alarm_description        = "Alarm if write latency is > ${var.rds_write_latency_threshold} for 15 minutes"
-  alarm_name               = "${var.app_name}-rds-write-latency-email"
+  alarm_name               = "RDS-WriteLatencyAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -458,7 +416,7 @@ module "high_cpu_aurora" {
 
   alarm_count              = var.number_aurora_nodes
   alarm_description        = "CPU Utilization above ${var.aurora_alarm_cpu_limit} for 15 minutes.  Sending notifications..."
-  alarm_name               = "${var.app_name}-aurora-high-cpu"
+  alarm_name               = "Aurora-CPUUtilizationAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.aurora_nodes.*.outputs
@@ -543,7 +501,7 @@ module "redshift_cpu_alarm_high" {
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Alarm if CPU > ${var.redshift_cw_cpu_threshold}% for 5 minutes"
-  alarm_name               = "${var.app_name}-Redshift-CPUAlarmHigh"
+  alarm_name               = "Redshift-CPUUtilizationAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
@@ -564,7 +522,7 @@ module "redshift_cluster_health_ticket" {
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Cluster has entered unhealthy state, creating ticket"
-  alarm_name               = "${var.app_name}-Redshift-CluterHealthTicket"
+  alarm_name               = "Redshift-ClusterHealthAlarm-${var.app_name}"
   comparison_operator      = "LessThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
@@ -585,7 +543,7 @@ module "redshift_free_storage_space_ticket" {
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Consumed storage space has risen above threshold, sending email notification"
-  alarm_name               = "${var.app_name}-Redshift-FreeStorageSpaceTicket"
+  alarm_name               = "Redshift-FreeStorageAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 30
@@ -609,7 +567,7 @@ module "redis_evictions_alarm" {
 
   alarm_count              = var.redis_evictions_threshold != "" ? var.number_redis_clusters : 0
   alarm_description        = "Evictions over ${var.redis_evictions_threshold}"
-  alarm_name               = "${var.app_name}-Redis-EvictionsAlarm"
+  alarm_name               = "Redis-EvictionsAlarm-${var.app_name}"
   customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.redis.*.outputs
@@ -627,7 +585,7 @@ module "redis_cpu_utilization_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redis_clusters
-  alarm_name               = "${var.app_name}-Redis-CPUUtilizationAlarm"
+  alarm_name               = "Redis-CPUUtilizationAlarm-${var.app_name}"
   alarm_description        = "CPUUtilization over ${var.redis_cpu_high_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
@@ -646,7 +604,7 @@ module "redis_memory_utilization_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redis_clusters
-  alarm_name               = "${var.app_name}-Redis-MemoryUtilizationAlarm"
+  alarm_name               = "Redis-MemoryUtilizationAlarm-${var.app_name}"
   alarm_description        = "Memory Utilization over ${var.redis_memory_high_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
@@ -665,7 +623,7 @@ module "redis_curr_connections_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.redis_curr_connections_threshold != "" ? var.number_redis_clusters : 0
-  alarm_name               = "${var.app_name}-Redis-CurrConnectionsAlarm"
+  alarm_name               = "Redis-CurrConnectionsAlarm-${var.app_name}"
   alarm_description        = "CurrConnections over ${var.redis_curr_connections_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
@@ -687,7 +645,7 @@ module "fsx_free_storage_space_alarm" {
 
   alarm_count              = var.fsx_free_space_threshold != "" ? var.number_fsx_filesystems : 0
   alarm_description        = "Free storage space for FSX has fallen below the threshold, generating alarm"
-  alarm_name               = "${var.app_name}-FSx-free-storage-alarm"
+  alarm_name               = "FSx-FreeStorageAlarm-${var.app_name}"
   comparison_operator      = "LessThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 30
@@ -711,7 +669,7 @@ module "dynamodb_write_throttling_alarm" {
 
   alarm_count              = var.dynamo_write_throttling_threshold != "" ? var.number_dynamo_tables : 0
   alarm_description        = "Sum of write throttling events are above the threshold, generating alarm"
-  alarm_name               = "${var.app_name}-DynamoDB-write-throttling-alarm"
+  alarm_name               = "DynamoDB-WriteThrottlingAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
@@ -733,7 +691,7 @@ module "dynamodb_read_throttling_alarm" {
 
   alarm_count              = var.dynamo_read_throttling_threshold != "" ? var.number_dynamo_tables : 0
   alarm_description        = "Sum of read throttling events are above the threshold, generating alarm"
-  alarm_name               = "${var.app_name}-DynamoDB-read-throttling-alarm"
+  alarm_name               = "DynamoDB-ReadThrottlingAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5

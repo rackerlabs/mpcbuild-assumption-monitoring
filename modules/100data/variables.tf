@@ -195,6 +195,12 @@ variable "rds_alarm_read_iops_limit" {
   default     = 100
 }
 
+variable "rds_replica_lag_threshold" {
+  description = "Maximum lag in seconds allowed before triggering an alarm"
+  type        = number
+  default     = 600
+}
+
 variable "rds_depth_queue_threshold" {
   description = "RDS depth queue limit for an alarm"
   type        = string

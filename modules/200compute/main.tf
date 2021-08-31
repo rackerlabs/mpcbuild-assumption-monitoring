@@ -128,7 +128,7 @@ module "ec2_status_check_failed_system_alarm_ticket" {
   alarm_description = "Status checks have failed for system, generating ticket."
   alarm_name = join(
     "-",
-    ["EC2", "StatusCheckFailedSystemAlarmTicket", var.app_name],
+    ["EC2", "StatusCheckFailedSystemAlarm", var.app_name],
   )
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.ec2_instances.*.outputs
@@ -204,7 +204,7 @@ module "ec2_status_check_failed_instance_alarm_ticket" {
   alarm_description = "Status checks have failed, generating ticket."
   alarm_name = join(
     "-",
-    ["EC2", "StatusCheckFailedInstanceAlarmTicket", var.app_name],
+    ["EC2", "StatusCheckFailedInstanceAlarm", var.app_name],
   )
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.ec2_instances.*.outputs
@@ -226,7 +226,7 @@ module "ec2_cpu_alarm_high" {
 
   alarm_count              = var.number_ec2_instances
   alarm_description        = "CPU Alarm ${var.ec2_cw_cpu_high_operator} ${var.ec2_cw_cpu_high_threshold}% for ${var.ec2_cw_cpu_high_period} seconds ${var.ec2_cw_cpu_high_evaluations} times."
-  alarm_name               = join("-", ["EC2", "CPUAlarmHigh", var.app_name])
+  alarm_name               = join("-", ["EC2", "CPUUtilizationAlarm", var.app_name])
   comparison_operator      = var.ec2_cw_cpu_high_operator
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.ec2_instances.*.outputs
@@ -335,7 +335,7 @@ module "asg_group_terminating_instances" {
 
   alarm_count              = var.number_asg
   alarm_description        = "Over ${var.asg_terminated_instances} instances terminated in last 6 hours, generating ticket to investigate."
-  alarm_name               = "${var.app_name}-ASG-GroupTerminatingInstances"
+  alarm_name               = "ASG-TerminatingInstancesAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   dimensions               = data.null_data_source.asg.*.outputs
   evaluation_periods       = 1
@@ -358,7 +358,7 @@ module "alb_unhealthy_host_count_alarm" {
 
   alarm_count              = var.alb_unhealthy_target_threshold == "" ? var.number_alb_tg : 0
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_alb_unhealthy_host_count_alarm"
+  alarm_name               = "ALB-UnhealthyHostCountAlarm-"${var.app_name}
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.alb_tg.*.outputs
@@ -379,7 +379,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealth_host_percentage_alarm" {
   count = var.alb_unhealthy_target_threshold != "" ? var.number_alb_tg : 0
 
   alarm_description   = "Percentage of unhealthy targets is bigger than threshold, creating ticket."
-  alarm_name          = var.number_alb_tg > 1 ? format("%v-%03d", "${var.app_name}_alb_unhealthy_percentage_alarm", count.index + 1) : "${var.app_name}_alb_unhealthy_percentage_alarm"
+  alarm_name          = var.number_alb_tg > 1 ? format("%v-%03d", "ALB-UnHealthyHostPercentangeAlarm-${var.app_name}", count.index + 1) : "ALB-UnHealthyHostPercentangeAlarm-${var.app_name}"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
   threshold           = var.alb_unhealthy_target_threshold
@@ -428,7 +428,7 @@ module "alb_target_response_time_alarm" {
 
   alarm_count              = var.alb_response_time_threshold != "" ? var.number_alb_tg : 0
   alarm_description        = "Target response time is higher than threshold, creating ticket."
-  alarm_name               = "${var.app_name}_alb_target_response_time_alarm"
+  alarm_name               = "ALB-TargetResponseTimeAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.alb_tg.*.outputs
@@ -450,7 +450,7 @@ module "nlb_unhealthy_host_count_alarm" {
 
   alarm_count              = var.nlb_unhealthy_target_threshold == "" ? var.number_nlb_tg : 0
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_nlb_unhealthy_host_count_alarm"
+  alarm_name               = "NLB-UnhealthyHostCountAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.nlb_tg.*.outputs
@@ -471,7 +471,7 @@ resource "aws_cloudwatch_metric_alarm" "nlb_unhealth_host_percentage_alarm" {
   count = var.nlb_unhealthy_target_threshold != "" ? var.number_nlb_tg : 0
 
   alarm_description   = "Percentage of unhealthy targets is bigger than threshold, creating ticket."
-  alarm_name          = var.number_alb_tg > 1 ? format("%v-%03d", "${var.app_name}_nlb_unhealthy_percentage_alarm", count.index + 1) : "${var.app_name}_alb_unhealthy_percentage_alarm"
+  alarm_name          = var.number_alb_tg > 1 ? format("%v-%03d", "NLB-UnhealthyHostCountAlarm-${var.app_name}", count.index + 1) : "NLB-UnhealthyHostCountAlarm-${var.app_name}"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
   threshold           = var.nlb_unhealthy_target_threshold
@@ -522,7 +522,7 @@ module "ecs_cpu_utilization_alarm" {
 
   alarm_count              = var.number_ecs_services
   alarm_description        = "CPU utilization is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_ecs_cpu_utilization_alarm"
+  alarm_name               = "ECS-CPUUtilizationAlarm-${var.app_name}"
   customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.ecs_cluster_service.*.outputs
@@ -544,7 +544,7 @@ module "ecs_memory_utilization_alarm" {
 
   alarm_count              = var.number_ecs_services
   alarm_description        = "Memory utilization is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_ecs_memory_utilization_alarm"
+  alarm_name               = "ECS-MemoryUtilizationAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.ecs_cluster_service.*.outputs
@@ -568,7 +568,7 @@ module "lambda_errors_alarm" {
 
   alarm_count              = var.number_lambda_functions
   alarm_description        = "Errors during Lambda execution is greater than threshold, creating ticket."
-  alarm_name               = "${var.app_name}_lambda_errors_alarm"
+  alarm_name               = "Lambda-ErrorsAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.lambda.*.outputs
@@ -592,7 +592,7 @@ module "cloudfront_total_errors_alarm" {
 
   alarm_count              = var.cloudfront_total_errors_threshold != "" ? var.number_cloudfront_distributions : 0
   alarm_description        = "Percentage of total errors is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_cloudfront_total_errors_alarm"
+  alarm_name               = "Cloudfront-TotalErrorsAlarm-${var.app_name}"
   customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.cloudfront.*.outputs
@@ -614,7 +614,7 @@ module "cloudfront_500_errors_alarm" {
 
   alarm_count              = var.cloudfront_500_errors_threshold != "" ? var.number_cloudfront_distributions : 0
   alarm_description        = "Percentage of 500 errors is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_cloudfront_500_errors_alarm"
+  alarm_name               = "Cloudfront-500ErrorsAlarm-${var.app_name}"
   customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.cloudfront.*.outputs
@@ -638,7 +638,7 @@ module "api_gw_500_errors_alarm" {
 
   alarm_count              = var.api_gw_500_errors_threshold != "" ? var.number_api_gws : 0
   alarm_description        = "Number of 500 errors is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_api_gw_500_errors_alarm"
+  alarm_name               = "ApiGW-500ErrorsAlarm-${var.app_name}"
   customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.api_gw.*.outputs
@@ -660,7 +660,7 @@ module "api_gw_400_errors_alarm" {
 
   alarm_count              = var.api_gw_400_errors_threshold != "" ? var.number_api_gws : 0
   alarm_description        = "Number of 400 errors is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_api_gw_400_errors_alarm"
+  alarm_name               = "ApiGW-400ErrorsAlarm-${var.app_name}"
   customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.api_gw.*.outputs
@@ -682,7 +682,7 @@ module "api_gw_latency_alarm" {
 
   alarm_count              = var.api_gw_latency_threshold != "" ? var.number_api_gws : 0
   alarm_description        = "Latency is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.app_name}_api_gw_latency_alarm"
+  alarm_name               = "ApiGW-LatencyAlarm-${var.app_name}"
   customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.api_gw.*.outputs

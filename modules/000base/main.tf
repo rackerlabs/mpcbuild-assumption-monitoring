@@ -26,7 +26,7 @@ module "vpn_status" {
 
   alarm_count              = var.number_vpn_connections
   alarm_description        = "${var.app_name}-VPN Connection State"
-  alarm_name               = "${var.app_name}-VPN-Status"
+  alarm_name               = "VPN-StatusAlarm-${var.app_name}"
   comparison_operator      = "LessThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.vpn.*.outputs
