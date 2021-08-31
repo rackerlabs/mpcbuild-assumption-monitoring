@@ -6,23 +6,23 @@ terraform {
   }
 }
 
-# data "aws_region" "current_region" {}
-#
-# data "aws_caller_identity" "current_account" {}
-#
-# locals {
-#   rackspace_alarm_config_rds = var.rds_rackspace_alarms_enabled ? "enabled" : "disabled"
-#
-#   rackspace_alarm_actions = {
-#     enabled  = [local.rackspace_sns_topic["emergency"]]
-#     disabled = []
-#   }
-#   rackspace_sns_topic = {
-#     standard  = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-standard"
-#     urgent    = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-urgent"
-#     emergency = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-emergency"
-#   }
-# }
+data "aws_region" "current_region" {}
+
+data "aws_caller_identity" "current_account" {}
+
+locals {
+  rackspace_alarm_config_rds = var.rds_rackspace_alarms_enabled ? "enabled" : "disabled"
+
+  rackspace_alarm_actions = {
+    enabled  = [local.rackspace_sns_topic["emergency"]]
+    disabled = []
+  }
+  rackspace_sns_topic = {
+    standard  = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-standard"
+    urgent    = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-urgent"
+    emergency = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-emergency"
+  }
+}
 
 ##### Placeholder for each service #####
 
