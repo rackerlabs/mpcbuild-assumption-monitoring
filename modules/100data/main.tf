@@ -26,33 +26,33 @@ terraform {
 
 ##### Placeholder for each service #####
 
-data "null_data_source" "rds_instances" {
-  count = var.number_rds_instances
-  inputs = {
-    DBInstanceIdentifier = element(var.rds_instance_identifiers, count.index)
-  }
-}
-
 # data "null_data_source" "rds_instances" {
 #   count = var.number_rds_instances
 #   inputs = {
-#     DBInstanceIdentifier = lookup(var.rds_instances_list[count.index], "id")
+#     DBInstanceIdentifier = element(var.rds_instance_identifiers, count.index)
 #   }
 # }
 
-data "null_data_source" "rds_read_replicas" {
-  count = var.number_rds_read_replicas
+data "null_data_source" "rds_instances" {
+  count = var.number_rds_instances
   inputs = {
-    DBInstanceIdentifier = element(var.read_replicas_identifiers, count.index)
+    DBInstanceIdentifier = lookup(var.rds_instances_list[count.index], "id")
   }
 }
 
 # data "null_data_source" "rds_read_replicas" {
-#   count = var.number_rds_instances
+#   count = var.number_rds_read_replicas
 #   inputs = {
-#     DBInstanceIdentifier = lookup(var.rds_replicas_list[count.index], "id")
+#     DBInstanceIdentifier = element(var.read_replicas_identifiers, count.index)
 #   }
 # }
+
+data "null_data_source" "rds_read_replicas" {
+  count = var.number_rds_instances
+  inputs = {
+    DBInstanceIdentifier = lookup(var.rds_replicas_list[count.index], "id")
+  }
+}
 
 data "null_data_source" "aurora_clusters" {
   count = var.number_aurora_clusters
