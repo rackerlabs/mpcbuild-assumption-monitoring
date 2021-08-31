@@ -15,16 +15,28 @@ variable "rds_instance_identifiers" {
   default     = []
 }
 
+# variable "rds_instances_list" {
+#   description = "Maps including the RDS instance identifier and the storage allocated"
+#   type        = list(map(string))
+#   default     = [{}]
+# }
+
 variable "number_rds_read_replicas" {
   description = "Number of RDS read replicas to monitor"
   type        = number
   default     = 0
 }
 
-variable "read_replicas_identifiers" {
-  description = "Identifiers of RDS read replicas to monitor. The list should match the length specified"
-  type        = list(string)
-  default     = []
+# variable "read_replicas_identifiers" {
+#   description = "Identifiers of RDS read replicas to monitor. The list should match the length specified"
+#   type        = list(string)
+#   default     = []
+# }
+
+variable "rds_replicas_list" {
+  description = "Maps including the RDS instance identifier of the replica and the storage allocated"
+  type        = list(map(string))
+  default     = [{}]
 }
 
 variable "number_aurora_clusters" {
@@ -165,10 +177,16 @@ variable "rds_alarm_cpu_limit" {
   default     = 75
 }
 
-variable "rds_alarm_free_space_limit" {
-  description = "CloudWatch Free Storage Space Limit Threshold (Bytes) for RDS"
+# variable "rds_alarm_free_space_limit" {
+#   description = "CloudWatch Free Storage Space Limit Threshold (Bytes) for RDS"
+#   type        = number
+#   default     = 1024000000
+# }
+
+variable "rds_alarm_free_space_threshold" {
+  description = "Minimum percentage of Free Storage Space for RDS before triggering an alarm"
   type        = number
-  default     = 1024000000
+  default     = 10
 }
 
 variable "rds_alarm_read_iops_limit" {

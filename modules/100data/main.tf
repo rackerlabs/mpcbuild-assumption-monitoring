@@ -6,6 +6,24 @@ terraform {
   }
 }
 
+# data "aws_region" "current_region" {}
+#
+# data "aws_caller_identity" "current_account" {}
+#
+# locals {
+#   rackspace_alarm_config_rds = var.rds_rackspace_alarms_enabled ? "enabled" : "disabled"
+#
+#   rackspace_alarm_actions = {
+#     enabled  = [local.rackspace_sns_topic["emergency"]]
+#     disabled = []
+#   }
+#   rackspace_sns_topic = {
+#     standard  = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-standard"
+#     urgent    = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-urgent"
+#     emergency = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-emergency"
+#   }
+# }
+
 ##### Placeholder for each service #####
 
 data "null_data_source" "rds_instances" {
@@ -15,12 +33,26 @@ data "null_data_source" "rds_instances" {
   }
 }
 
+# data "null_data_source" "rds_instances" {
+#   count = var.number_rds_instances
+#   inputs = {
+#     DBInstanceIdentifier = lookup(var.rds_instances_list[count.index], "id")
+#   }
+# }
+
 data "null_data_source" "rds_read_replicas" {
   count = var.number_rds_read_replicas
   inputs = {
     DBInstanceIdentifier = element(var.read_replicas_identifiers, count.index)
   }
 }
+
+# data "null_data_source" "rds_read_replicas" {
+#   count = var.number_rds_instances
+#   inputs = {
+#     DBInstanceIdentifier = lookup(var.rds_replicas_list[count.index], "id")
+#   }
+# }
 
 data "null_data_source" "aurora_clusters" {
   count = var.number_aurora_clusters
@@ -116,44 +148,86 @@ data "null_data_source" "dynamodb" {
 #   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
 # }
 
-module "rds_free_storage_space_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+# module "rds_free_storage_space_alarm_email" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_instances
+#   alarm_description        = "Free storage space has fallen below threshold, sending email notification."
+#   alarm_name               = "${var.app_name}-rds-free-storage-space-email"
+#   comparison_operator      = "LessThanOrEqualToThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = 30
+#   metric_name              = "FreeStorageSpace"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = false
+#   statistic                = "Average"
+#   threshold                = var.rds_alarm_free_space_limit
+#   unit                     = "Bytes"
+#   dimensions               = data.null_data_source.rds_instances.*.outputs
+# }
 
-  alarm_count              = var.number_rds_instances
-  alarm_description        = "Free storage space has fallen below threshold, sending email notification."
-  alarm_name               = "${var.app_name}-rds-free-storage-space-email"
-  comparison_operator      = "LessThanOrEqualToThreshold"
-  customer_alarms_enabled  = true
-  evaluation_periods       = 30
-  metric_name              = "FreeStorageSpace"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = false
-  statistic                = "Average"
-  threshold                = var.rds_alarm_free_space_limit
-  unit                     = "Bytes"
-  dimensions               = data.null_data_source.rds_instances.*.outputs
+resource "aws_cloudwatch_metric_alarm" "rds_free_storage_space_alarm" {
+  count = var.number_rds_instances
+
+  alarm_description   = "Storage available is less than ${var.rds_alarm_free_space_threshold}%"
+  alarm_name          = format("%v-%03d", "RDS-FreeStorageAlarm-${var.app_name}", count.index + 1)
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 30
+  namespace           = "AWS/RDS"
+  metric_name         = "FreeStorageSpace"
+  period              = 60
+  statistic           = "Average"
+  unit                = "Bytes"
+  threshold           = floor((var.rds_alarm_free_space_threshold * 0.01) * (var.rds_instances_list[count.index]["storage"] * 1073741824))
+  dimensions          = data.null_data_source.rds_instances[count.index].outputs
+
+  alarm_actions = concat(
+    var.notification_topic,
+    local.rackspace_alarm_actions[local.rackspace_alarm_config_rds],
+  )
 }
 
-module "rds_replica_free_storage_space_alarm_email" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+# module "rds_replica_free_storage_space_alarm_email" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm?ref=v0.12.6"
+#
+#   alarm_count              = var.number_rds_read_replicas
+#   alarm_description        = "Free storage space has fallen below threshold, sending email notification."
+#   alarm_name               = "${var.app_name}-rds-replica-free-storage-space-email"
+#   comparison_operator      = "LessThanOrEqualToThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = 30
+#   metric_name              = "FreeStorageSpace"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = false
+#   statistic                = "Average"
+#   threshold                = var.rds_alarm_free_space_limit
+#   unit                     = "Bytes"
+#   dimensions               = data.null_data_source.rds_read_replicas.*.outputs
+# }
 
-  alarm_count              = var.number_rds_read_replicas
-  alarm_description        = "Free storage space has fallen below threshold, sending email notification."
-  alarm_name               = "${var.app_name}-rds-replica-free-storage-space-email"
-  comparison_operator      = "LessThanOrEqualToThreshold"
-  customer_alarms_enabled  = true
-  evaluation_periods       = 30
-  metric_name              = "FreeStorageSpace"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = false
-  statistic                = "Average"
-  threshold                = var.rds_alarm_free_space_limit
-  unit                     = "Bytes"
-  dimensions               = data.null_data_source.rds_read_replicas.*.outputs
+resource "aws_cloudwatch_metric_alarm" "rds_replica_free_storage_space_alarm" {
+  count = var.number_rds_read_replicas
+
+  alarm_description   = "Storage available is less than ${var.rds_alarm_free_space_threshold}%"
+  alarm_name          = format("%v-%03d", "RDS-Replica-FreeStorageAlarm-${var.app_name}", count.index + 1)
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 30
+  namespace           = "AWS/RDS"
+  metric_name         = "FreeStorageSpace"
+  period              = 60
+  statistic           = "Average"
+  unit                = "Bytes"
+  threshold           = floor((var.rds_alarm_free_space_threshold * 0.01) * (var.rds_replicas_list[count.index]["storage"] * 1073741824))
+  dimensions          = data.null_data_source.rds_read_replicas[count.index].outputs
+
+  alarm_actions = concat(
+    var.notification_topic,
+    local.rackspace_alarm_actions[local.rackspace_alarm_config_rds],
+  )
 }
 
 module "rds_write_iops_high_alarm_email" {
