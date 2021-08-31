@@ -9,17 +9,17 @@ variable "number_rds_instances" {
   default     = 0
 }
 
-variable "rds_instance_identifiers" {
-  description = "Identifiers of RDS instance to monitor (without read replicas). The list should match the length specified"
-  type        = list(string)
-  default     = []
-}
-
-# variable "rds_instances_list" {
-#   description = "Maps including the RDS instance identifier and the storage allocated"
-#   type        = list(map(string))
-#   default     = [{}]
+# variable "rds_instance_identifiers" {
+#   description = "Identifiers of RDS instance to monitor (without read replicas). The list should match the length specified"
+#   type        = list(string)
+#   default     = []
 # }
+
+variable "rds_instances_list" {
+  description = "Maps including the RDS instance identifier and the storage allocated"
+  type        = list(map(string))
+  default     = [{}]
+}
 
 variable "number_rds_read_replicas" {
   description = "Number of RDS read replicas to monitor"
