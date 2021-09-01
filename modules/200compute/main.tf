@@ -358,7 +358,7 @@ module "alb_unhealthy_host_count_alarm" {
 
   alarm_count              = var.alb_unhealthy_target_threshold == "" ? var.number_alb_tg : 0
   alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
-  alarm_name               = "ALB-UnhealthyHostCountAlarm-"${var.app_name}
+  alarm_name               = "ALB-UnhealthyHostCountAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.alb_tg.*.outputs
@@ -511,7 +511,7 @@ resource "aws_cloudwatch_metric_alarm" "nlb_unhealth_host_percentage_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config],
+    local.rackspace_alarm_actions[local.rackspace_alarm_config_elb],
   )
 }
 
