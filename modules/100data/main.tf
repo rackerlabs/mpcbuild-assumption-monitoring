@@ -22,6 +22,25 @@ locals {
     urgent    = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-urgent"
     emergency = "arn:aws:sns:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:rackspace-support-emergency"
   }
+  aurora_memory = {
+    "optimized_large"    = 16
+    "optimized_xlarge"   = 32
+    "optimized_2xlarge"  = 64
+    "optimized_4xlarge"  = 128
+    "optimized_8xlarge"  = 256
+    "optimized_12xlarge" = 384
+    "optimized_16xlarge" = 512
+    "optimized_24xlarge" = 768
+    "burstable_large"    = 8
+    "burstable_medium"   = 4
+    "burstable_small"    = 2
+    "legacy_large"       = 15.25
+    "legacy_xlarge"      = 30.5
+    "legacy_2xlarge"     = 61
+    "legacy_4xlarge"     = 122
+    "legacy_8xlarge"     = 244
+    "legacy_16xlarge"    = 488
+  }
 }
 
 ##### Placeholder for each service #####
@@ -62,10 +81,17 @@ data "null_data_source" "aurora_clusters" {
   }
 }
 
+# data "null_data_source" "aurora_nodes" {
+#   count = var.number_aurora_nodes
+#   inputs = {
+#     DBInstanceIdentifier = element(var.aurora_nodes, count.index)
+#   }
+# }
+
 data "null_data_source" "aurora_nodes" {
   count = var.number_aurora_nodes
   inputs = {
-    DBInstanceIdentifier = element(var.aurora_nodes, count.index)
+    DBInstanceIdentifier = lookup(var.aurora_nodes[count.index], "id")
   }
 }
 
@@ -429,46 +455,112 @@ module "high_cpu_aurora" {
   rackspace_managed        = true
   severity                 = "urgent"
   statistic                = "Average"
+  unit                     = "Percentage"
   threshold                = var.aurora_alarm_cpu_limit
 }
 
-module "write_io_high_aurora" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+resource "aws_cloudwatch_metric_alarm" "aurora_free_memory_alarm" {
+  count = var.number_aurora_nodes
 
-  alarm_count              = var.number_aurora_clusters
-  alarm_description        = "Write IO > ${var.aurora_alarm_write_io_limit}, sending notification..."
-  alarm_name               = "${var.app_name}-aurora-write-io-high"
-  comparison_operator      = "GreaterThanThreshold"
-  customer_alarms_enabled  = true
-  evaluation_periods       = 6
-  metric_name              = "VolumeWriteIOPs"
-  namespace                = "AWS/RDS"
-  notification_topic       = var.notification_topic
-  period                   = 300
-  rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
-  statistic                = "Average"
-  threshold                = var.aurora_alarm_write_io_limit
-  dimensions               = data.null_data_source.aurora_clusters.*.outputs
+  alarm_description   = "Freeable memory is less than ${var.aurora_free_memory_threshold}%"
+  alarm_name          = format("%v-%03d", "Aurora-FreeMemoryAlarm-${var.app_name}", count.index + 1)
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 5
+  namespace           = "AWS/RDS"
+  metric_name         = "FreeableMemory"
+  period              = 60
+  statistic           = "Average"
+  unit                = "Bytes"
+  threshold           = floor((var.aurora_free_memory_threshold * 0.01) * (local.aurora_memory[var.aurora_nodes[count.index]["size"]] * 1073741824))
+  dimensions          = data.null_data_source.aurora_nodes[count.index].outputs
+
+  alarm_actions = concat(
+    var.notification_topic,
+    local.rackspace_alarm_actions[local.rackspace_alarm_config_rds],
+  )
 }
 
-module "read_io_high_aurora" {
+module "aurora_read_latency" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
-  alarm_count              = var.number_aurora_clusters
-  alarm_description        = "Read IO > ${var.aurora_alarm_read_io_limit}, sending notification..."
-  alarm_name               = "${var.app_name}-aurora-read-io-high"
+  alarm_count              = var.aurora_read_latency_threshold != "" ? var.number_aurora_nodes : 0
+  alarm_description        = "Read Latency is above ${var.aurora_read_latency_threshold} seconds"
+  alarm_name               = "Aurora-ReadLatencyAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
-  evaluation_periods       = 6
-  metric_name              = "VolumeReadIOPs"
+  dimensions               = data.null_data_source.aurora_nodes.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "ReadLatency"
   namespace                = "AWS/RDS"
   notification_topic       = var.notification_topic
-  period                   = 300
+  period                   = 60
   rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "urgent"
   statistic                = "Average"
-  threshold                = var.aurora_alarm_read_io_limit
-  dimensions               = data.null_data_source.aurora_clusters.*.outputs
+  unit                     = "Seconds"
+  threshold                = var.aurora_read_latency_threshold
 }
+
+module "aurora_write_latency" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.aurora_write_latency_threshold != "" ? var.number_aurora_nodes : 0
+  alarm_description        = "Write Latency is above ${var.aurora_write_latency_threshold} seconds"
+  alarm_name               = "Aurora-WriteLatencyAlarm-${var.app_name}"
+  comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = data.null_data_source.aurora_nodes.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "WriteLatency"
+  namespace                = "AWS/RDS"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "urgent"
+  statistic                = "Average"
+  unit                     = "Seconds"
+  threshold                = var.aurora_write_latency_threshold
+}
+
+# module "write_io_high_aurora" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+#
+#   alarm_count              = var.number_aurora_clusters
+#   alarm_description        = "Write IO > ${var.aurora_alarm_write_io_limit}, sending notification..."
+#   alarm_name               = "${var.app_name}-aurora-write-io-high"
+#   comparison_operator      = "GreaterThanThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = 6
+#   metric_name              = "VolumeWriteIOPs"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 300
+#   rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
+#   statistic                = "Average"
+#   threshold                = var.aurora_alarm_write_io_limit
+#   dimensions               = data.null_data_source.aurora_clusters.*.outputs
+# }
+#
+# module "read_io_high_aurora" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+#
+#   alarm_count              = var.number_aurora_clusters
+#   alarm_description        = "Read IO > ${var.aurora_alarm_read_io_limit}, sending notification..."
+#   alarm_name               = "${var.app_name}-aurora-read-io-high"
+#   comparison_operator      = "GreaterThanThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = 6
+#   metric_name              = "VolumeReadIOPs"
+#   namespace                = "AWS/RDS"
+#   notification_topic       = var.notification_topic
+#   period                   = 300
+#   rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
+#   statistic                = "Average"
+#   threshold                = var.aurora_alarm_read_io_limit
+#   dimensions               = data.null_data_source.aurora_clusters.*.outputs
+# }
 
 ##### EFS Monitoring #####
 

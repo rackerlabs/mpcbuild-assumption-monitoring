@@ -228,20 +228,38 @@ variable "rds_alarm_write_iops_limit" {
 variable "aurora_alarm_cpu_limit" {
   description = "CloudWatch CPUUtilization Threshold for Aurora"
   type        = number
-  default     = 60
+  default     = 75
 }
 
-variable "aurora_alarm_read_io_limit" {
-  description = "CloudWatch Read IOPSLimit Threshold for Aurora"
+variable "aurora_free_memory_threshold" {
+  description = "Minimum percentage of freeable memory on Aurora before triggering an alarm"
   type        = number
-  default     = 60
+  default     = 10
 }
 
-variable "aurora_alarm_write_io_limit" {
-  description = "CloudWatch Write IOPSLimit Threshold for Aurora"
-  type        = number
-  default     = 100000
+variable "aurora_read_latency_threshold" {
+  description = "Maximum time in seconds of latency in read operations on Aurora before triggering an alarm"
+  type        = string
+  default     = ""
 }
+
+variable "aurora_write_latency_threshold" {
+  description = "Maximum time in seconds of latency in write operations on Aurora before triggering an alarm"
+  type        = string
+  default     = ""
+}
+
+# variable "aurora_alarm_read_io_limit" {
+#   description = "CloudWatch Read IOPSLimit Threshold for Aurora"
+#   type        = number
+#   default     = 60
+# }
+#
+# variable "aurora_alarm_write_io_limit" {
+#   description = "CloudWatch Write IOPSLimit Threshold for Aurora"
+#   type        = number
+#   default     = 100000
+# }
 
 variable "efs_cw_burst_credit_period" {
   description = "The number of periods over which the EFS Burst Credit level is compared to the specified threshold."
