@@ -437,7 +437,7 @@ module "rds_write_latency_alarm" {
 
 ##### Aurora Monitoring #####
 
-module "high_cpu_aurora" {
+module "aurora_high_cpu" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_aurora_nodes

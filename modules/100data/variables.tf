@@ -57,10 +57,16 @@ variable "number_aurora_nodes" {
   default     = 0
 }
 
+# variable "aurora_nodes" {
+#   description = "Identifiers for all Aurora nodes (writer and reader nodes) to monitor. The list should match the length specified"
+#   type        = list(string)
+#   default     = []
+# }
+
 variable "aurora_nodes" {
-  description = "Identifiers for all Aurora nodes (writer and reader nodes) to monitor. The list should match the length specified"
-  type        = list(string)
-  default     = []
+  description = "Identifiers for all Aurora nodes (writer and reader nodes) to monitor, including a size identifier. The list should match the length specified"
+  type        = list(map(string))
+  default     = [{}]
 }
 
 variable "number_redshift_nodes" {
