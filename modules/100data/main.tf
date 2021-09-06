@@ -527,7 +527,7 @@ module "aurora_write_latency" {
 module "aurora_replica_lag" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
-  alarm_count              = var.number_aurora_readers : 0
+  alarm_count              = var.number_aurora_readers
   alarm_description        = "Replica lag is above ${var.aurora_replica_lag_threshold} milliseconds"
   alarm_name               = "Aurora-ReplicaLagAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
