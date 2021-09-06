@@ -39,17 +39,17 @@ variable "rds_replicas_list" {
   default     = [{}]
 }
 
-variable "number_aurora_clusters" {
-  description = "Number of Aurora Cluster to monitor"
-  type        = number
-  default     = 0
-}
-
-variable "aurora_clusters" {
-  description = "Maps representing Aurora Clusters to monitor. Example: [{cluster_id = 'aurora-test', engine = 'aurora-mysql'}]. The nodes will be handled in another parameter"
-  type        = list(map(string))
-  default     = [{}]
-}
+# variable "number_aurora_clusters" {
+#   description = "Number of Aurora Cluster to monitor"
+#   type        = number
+#   default     = 0
+# }
+#
+# variable "aurora_clusters" {
+#   description = "Maps representing Aurora Clusters to monitor. Example: [{cluster_id = 'aurora-test', engine = 'aurora-mysql'}]. The nodes will be handled in another parameter"
+#   type        = list(map(string))
+#   default     = [{}]
+# }
 
 variable "number_aurora_nodes" {
   description = "Number of Aurora Nodes (writer and reader nodes) to monitor"
@@ -67,6 +67,18 @@ variable "aurora_nodes" {
   description = "Identifiers for all Aurora nodes (writer and reader nodes) to monitor, including a size identifier. The list should match the length specified"
   type        = list(map(string))
   default     = [{}]
+}
+
+variable "number_aurora_readers" {
+  description = "Number of Aurora nodes acting as reader nodes"
+  type        = number
+  default     = 0
+}
+
+variable "aurora_readers_identifiers" {
+  description = "List of identifiers for Aurora reader nodes"
+  type        = list(string)
+  default     = []
 }
 
 variable "number_redshift_nodes" {
@@ -253,6 +265,12 @@ variable "aurora_write_latency_threshold" {
   description = "Maximum time in seconds of latency in write operations on Aurora before triggering an alarm"
   type        = string
   default     = ""
+}
+
+variable "aurora_replica_lag_threshold" {
+  description = "Maximum lag in milliseconds allowed before triggering an alarm"
+  type        = number
+  default     = 10000
 }
 
 # variable "aurora_alarm_read_io_limit" {

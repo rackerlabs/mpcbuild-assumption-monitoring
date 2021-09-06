@@ -73,18 +73,11 @@ data "null_data_source" "rds_read_replicas" {
   }
 }
 
-data "null_data_source" "aurora_clusters" {
-  count = var.number_aurora_clusters
-  inputs = {
-    DbClusterIdentifier = lookup(var.aurora_clusters[count.index], "cluster_id")
-    EngineName          = lookup(var.aurora_clusters[count.index], "engine")
-  }
-}
-
-# data "null_data_source" "aurora_nodes" {
-#   count = var.number_aurora_nodes
+# data "null_data_source" "aurora_clusters" {
+#   count = var.number_aurora_clusters
 #   inputs = {
-#     DBInstanceIdentifier = element(var.aurora_nodes, count.index)
+#     DbClusterIdentifier = lookup(var.aurora_clusters[count.index], "cluster_id")
+#     EngineName          = lookup(var.aurora_clusters[count.index], "engine")
 #   }
 # }
 
@@ -92,6 +85,13 @@ data "null_data_source" "aurora_nodes" {
   count = var.number_aurora_nodes
   inputs = {
     DBInstanceIdentifier = lookup(var.aurora_nodes[count.index], "id")
+  }
+}
+
+data "null_data_source" "aurora_readers" {
+  count = var.number_aurora_readers
+  inputs = {
+    DBInstanceIdentifier = element(var.aurora_readers_identifiers, count.index)
   }
 }
 
@@ -455,7 +455,7 @@ module "aurora_high_cpu" {
   rackspace_managed        = true
   severity                 = "urgent"
   statistic                = "Average"
-  unit                     = "Percentage"
+  unit                     = "Percent"
   threshold                = var.aurora_alarm_cpu_limit
 }
 
@@ -522,6 +522,28 @@ module "aurora_write_latency" {
   statistic                = "Average"
   unit                     = "Seconds"
   threshold                = var.aurora_write_latency_threshold
+}
+
+module "aurora_replica_lag" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_aurora_readers : 0
+  alarm_description        = "Replica lag is above ${var.aurora_replica_lag_threshold} milliseconds"
+  alarm_name               = "Aurora-ReplicaLagAlarm-${var.app_name}"
+  comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = data.null_data_source.aurora_readers.*.outputs
+  evaluation_periods       = 10
+  metric_name              = "AuroraReplicaLag"
+  namespace                = "AWS/RDS"
+  notification_topic       = var.notification_topic
+  period                   = 60
+  rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = "urgent"
+  statistic                = "Average"
+  unit                     = "Milliseconds"
+  threshold                = var.aurora_replica_lag_threshold
 }
 
 # module "write_io_high_aurora" {
