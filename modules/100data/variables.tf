@@ -285,16 +285,28 @@ variable "aurora_replica_lag_threshold" {
 #   default     = 100000
 # }
 
-variable "efs_cw_burst_credit_period" {
-  description = "The number of periods over which the EFS Burst Credit level is compared to the specified threshold."
+# variable "efs_cw_burst_credit_period" {
+#   description = "The number of periods over which the EFS Burst Credit level is compared to the specified threshold."
+#   type        = number
+#   default     = 12
+# }
+#
+# variable "efs_cw_burst_credit_threshold" {
+#   description = "The minimum EFS Burst Credit level before generating an alarm."
+#   type        = number
+#   default     = 1000000000000
+# }
+
+variable "efs_throughput_percent_threshold" {
+  description = "Percentage of permitted throughput used on EFS before triggering an alarm"
   type        = number
-  default     = 12
+  default     = 80
 }
 
-variable "efs_cw_burst_credit_threshold" {
-  description = "The minimum EFS Burst Credit level before generating an alarm."
-  type        = number
-  default     = 1000000000000
+variable "efs_connections_threshold" {
+  description = "Number of connections on EFS allowed before triggering an alarm"
+  type        = string
+  default     = ""
 }
 
 variable "redshift_cw_cpu_threshold" {
@@ -309,17 +321,17 @@ variable "redshift_cw_percentage_disk_used" {
   type        = number
 }
 
-variable "redis_evictions_evaluations" {
-  description = "(redis) The number of minutes Evictions must remain above the specified threshold to generate an alarm."
-  type        = number
-  default     = 5
-}
-
-variable "redis_evictions_threshold" {
-  description = "(redis) The max evictions before generating an alarm. NOTE: If this variable is not set, the evictions alarm will not be provisioned."
-  type        = string
-  default     = ""
-}
+# variable "redis_evictions_evaluations" {
+#   description = "(redis) The number of minutes Evictions must remain above the specified threshold to generate an alarm."
+#   type        = number
+#   default     = 5
+# }
+#
+# variable "redis_evictions_threshold" {
+#   description = "(redis) The max evictions before generating an alarm. NOTE: If this variable is not set, the evictions alarm will not be provisioned."
+#   type        = string
+#   default     = ""
+# }
 
 variable "redis_cpu_high_evaluations" {
   description = "(redis) The number of minutes CPU usage must remain above the specified threshold to generate an alarm."
@@ -345,17 +357,17 @@ variable "redis_memory_high_threshold" {
   default     = 75
 }
 
-variable "redis_curr_connections_evaluations" {
-  description = "(redis) The number of minutes current connections must remain above the specified threshold to generate an alarm."
-  type        = number
-  default     = 5
-}
-
-variable "redis_curr_connections_threshold" {
-  description = "(redis) The max number of current connections before generating an alarm. NOTE: If this variable is not set, the connections alarm will not be provisioned."
-  type        = string
-  default     = ""
-}
+# variable "redis_curr_connections_evaluations" {
+#   description = "(redis) The number of minutes current connections must remain above the specified threshold to generate an alarm."
+#   type        = number
+#   default     = 5
+# }
+#
+# variable "redis_curr_connections_threshold" {
+#   description = "(redis) The max number of current connections before generating an alarm. NOTE: If this variable is not set, the connections alarm will not be provisioned."
+#   type        = string
+#   default     = ""
+# }
 
 variable "fsx_free_space_threshold" {
   description = "Free Storage Space Limit Threshold (Bytes) for FSX"

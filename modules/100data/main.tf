@@ -12,6 +12,7 @@ data "aws_caller_identity" "current_account" {}
 
 locals {
   rackspace_alarm_config_rds = var.rds_rackspace_alarms_enabled ? "enabled" : "disabled"
+  rackspace_alarm_config_efs = var.efs_rackspace_alarms_enabled ? "enabled" : "disabled"
 
   rackspace_alarm_actions = {
     enabled  = [local.rackspace_sns_topic["emergency"]]
@@ -586,26 +587,108 @@ module "aurora_replica_lag" {
 
 ##### EFS Monitoring #####
 
-module "efs_burst_credits" {
+# module "efs_burst_credits" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+#
+#   alarm_count              = var.number_elastic_filesystems
+#   alarm_description        = "EFS Burst Credits have dropped below ${var.efs_cw_burst_credit_threshold} for ${var.efs_cw_burst_credit_period} periods."
+#   alarm_name               = "${var.app_name}-EFSBurstCredits"
+#   comparison_operator      = "LessThanThreshold"
+#   customer_alarms_enabled  = true
+#   evaluation_periods       = var.efs_cw_burst_credit_period
+#   metric_name              = "BurstCreditBalance"
+#   namespace                = "AWS/EFS"
+#   notification_topic       = var.notification_topic
+#   period                   = "3600"
+#   rackspace_alarms_enabled = var.efs_rackspace_alarms_enabled
+#   rackspace_managed        = true
+#   severity                 = "emergency"
+#   statistic                = "Minimum"
+#   threshold                = var.efs_cw_burst_credit_threshold
+#   dimensions               = data.null_data_source.efs.*.outputs
+#   unit                     = "Bytes"
+# }
+
+resource "aws_cloudwatch_metric_alarm" "efs_permitted_throughput_alarm" {
+  count = var.number_elastic_filesystems
+
+  alarm_description   = "Percentage of permitted throughput is bigger than ${var.efs_throughput_percent_threshold}%, creating ticket."
+  alarm_name          = var.number_elastic_filesystems > 1 ? format("%v-%03d", "EFS-PermittedThroughputAlarm-${var.app_name}", count.index + 1) : "EFS-PermittedThroughputAlarm-${var.app_name}"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 10
+  threshold           = var.efs_throughput_percent_threshold
+
+  metric_query {
+    id          = "e3"
+    expression  = "((e1)*100)/(e2)"
+    label       = "ProvisionedThroughputPercentage"
+    return_data = "true"
+  }
+
+  metric_query {
+    id         = "e1"
+    expression = "(m1/1048576)/PERIOD(m1)"
+    label      = "Expression1"
+  }
+
+  metric_query {
+    id         = "e2"
+    expression = "m2/1048576"
+    label      = "Expression2"
+  }
+
+  metric_query {
+    id = "m1"
+
+    metric {
+      metric_name = "MeteredIOBytes"
+      namespace   = "AWS/EFS"
+      period      = "60"
+      stat        = "Sum"
+      unit        = "Bytes"
+      dimensions  = data.null_data_source.efs[count.index].outputs
+    }
+  }
+
+  metric_query {
+    id = "m2"
+
+    metric {
+      metric_name = "PermittedThroughput"
+      namespace   = "AWS/EFS"
+      period      = "60"
+      stat        = "Average"
+      unit        = "Bytes/Second"
+      dimensions  = data.null_data_source.efs[count.index].outputs
+    }
+  }
+
+  alarm_actions = concat(
+    var.notification_topic,
+    local.rackspace_alarm_actions[local.rackspace_alarm_config_efs],
+  )
+}
+
+module "efs_connections_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
-  alarm_count              = var.number_elastic_filesystems
-  alarm_description        = "EFS Burst Credits have dropped below ${var.efs_cw_burst_credit_threshold} for ${var.efs_cw_burst_credit_period} periods."
-  alarm_name               = "${var.app_name}-EFSBurstCredits"
-  comparison_operator      = "LessThanThreshold"
+  alarm_count              = var.efs_connections_threshold != "" ? var.number_elastic_filesystems : 0
+  alarm_description        = "Number of connections is above ${var.efs_connections_threshold}, creating a ticket"
+  alarm_name               = "EFS-ConnectionsAlarm-${var.app_name}"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
-  evaluation_periods       = var.efs_cw_burst_credit_period
-  metric_name              = "BurstCreditBalance"
+  evaluation_periods       = 10
+  metric_name              = "ClientConnections"
   namespace                = "AWS/EFS"
   notification_topic       = var.notification_topic
-  period                   = "3600"
+  period                   = 60
   rackspace_alarms_enabled = var.efs_rackspace_alarms_enabled
   rackspace_managed        = true
   severity                 = "emergency"
-  statistic                = "Minimum"
-  threshold                = var.efs_cw_burst_credit_threshold
+  statistic                = "Sum"
+  threshold                = var.efs_connections_threshold
   dimensions               = data.null_data_source.efs.*.outputs
-  unit                     = "Bytes"
+  unit                     = "Count"
 }
 
 ##### Redshift Monitoring #####
@@ -676,24 +759,24 @@ module "redshift_free_storage_space_ticket" {
 
 ##### Elasticache Monitoring #####
 
-module "redis_evictions_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
-
-  alarm_count              = var.redis_evictions_threshold != "" ? var.number_redis_clusters : 0
-  alarm_description        = "Evictions over ${var.redis_evictions_threshold}"
-  alarm_name               = "Redis-EvictionsAlarm-${var.app_name}"
-  customer_alarms_enabled  = true
-  comparison_operator      = "GreaterThanOrEqualToThreshold"
-  dimensions               = data.null_data_source.redis.*.outputs
-  evaluation_periods       = var.redis_evictions_evaluations
-  metric_name              = "Evictions"
-  namespace                = "AWS/ElastiCache"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
-  statistic                = "Average"
-  threshold                = var.redis_evictions_threshold
-}
+# module "redis_evictions_alarm" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+#
+#   alarm_count              = var.redis_evictions_threshold != "" ? var.number_redis_clusters : 0
+#   alarm_description        = "Evictions over ${var.redis_evictions_threshold}"
+#   alarm_name               = "Redis-EvictionsAlarm-${var.app_name}"
+#   customer_alarms_enabled  = true
+#   comparison_operator      = "GreaterThanOrEqualToThreshold"
+#   dimensions               = data.null_data_source.redis.*.outputs
+#   evaluation_periods       = var.redis_evictions_evaluations
+#   metric_name              = "Evictions"
+#   namespace                = "AWS/ElastiCache"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
+#   statistic                = "Average"
+#   threshold                = var.redis_evictions_threshold
+# }
 
 module "redis_cpu_utilization_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
@@ -733,24 +816,24 @@ module "redis_memory_utilization_alarm" {
   threshold                = var.redis_memory_high_threshold
 }
 
-module "redis_curr_connections_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
-
-  alarm_count              = var.redis_curr_connections_threshold != "" ? var.number_redis_clusters : 0
-  alarm_name               = "Redis-CurrConnectionsAlarm-${var.app_name}"
-  alarm_description        = "CurrConnections over ${var.redis_curr_connections_threshold}"
-  comparison_operator      = "GreaterThanOrEqualToThreshold"
-  customer_alarms_enabled  = true
-  dimensions               = data.null_data_source.redis.*.outputs
-  evaluation_periods       = var.redis_curr_connections_evaluations
-  metric_name              = "CurrConnections"
-  namespace                = "AWS/ElastiCache"
-  notification_topic       = var.notification_topic
-  period                   = 60
-  rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
-  statistic                = "Average"
-  threshold                = var.redis_curr_connections_threshold
-}
+# module "redis_curr_connections_alarm" {
+#   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+#
+#   alarm_count              = var.redis_curr_connections_threshold != "" ? var.number_redis_clusters : 0
+#   alarm_name               = "Redis-CurrConnectionsAlarm-${var.app_name}"
+#   alarm_description        = "CurrConnections over ${var.redis_curr_connections_threshold}"
+#   comparison_operator      = "GreaterThanOrEqualToThreshold"
+#   customer_alarms_enabled  = true
+#   dimensions               = data.null_data_source.redis.*.outputs
+#   evaluation_periods       = var.redis_curr_connections_evaluations
+#   metric_name              = "CurrConnections"
+#   namespace                = "AWS/ElastiCache"
+#   notification_topic       = var.notification_topic
+#   period                   = 60
+#   rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
+#   statistic                = "Average"
+#   threshold                = var.redis_curr_connections_threshold
+# }
 
 ####### FSX monitoring #######
 
