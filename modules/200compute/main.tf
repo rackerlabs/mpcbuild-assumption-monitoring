@@ -148,16 +148,8 @@ module "ec2_status_check_failed_system_alarm_ticket" {
 resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_instance_alarm_reboot" {
   count = var.enable_recovery_alarms ? var.number_ec2_instances : 0
 
-  alarm_description = "Status checks have failed, rebooting system."
-  alarm_name = join(
-    "-",
-    [
-      "EC2",
-      "StatusCheckFailedInstanceAlarmReboot",
-      var.app_name,
-      count.index + 1,
-    ],
-  )
+  alarm_description   = "Status checks have failed, rebooting system."
+  alarm_name          = var.number_ec2_instances > 1 ? format("%v-%03d", "EC2-StatusCheckFailedInstanceAlarmReboot-${var.app_name}", count.index + 1) : "EC2-StatusCheckFailedInstanceAlarmReboot-${var.app_name}"
   comparison_operator = "GreaterThanThreshold"
   dimensions          = data.null_data_source.ec2_instances[count.index].outputs
   evaluation_periods  = "5"
@@ -174,16 +166,8 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_instance_alarm_r
 resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed_system_alarm_recover" {
   count = var.enable_recovery_alarms ? var.number_ec2_instances : 0
 
-  alarm_description = "Status checks have failed for system, recovering instance"
-  alarm_name = join(
-    "-",
-    [
-      "EC2",
-      "StatusCheckFailedSystemAlarmRecover",
-      var.app_name,
-      count.index + 1,
-    ],
-  )
+  alarm_description   = "Status checks have failed for system, recovering instance"
+  alarm_name          = var.number_ec2_instances > 1 ? format("%v-%03d", "EC2-StatusCheckFailedSystemAlarmRecover-${var.app_name}", count.index + 1) : "EC2-StatusCheckFailedSystemAlarmRecover-${var.app_name}"
   comparison_operator = "GreaterThanThreshold"
   dimensions          = data.null_data_source.ec2_instances[count.index].outputs
   evaluation_periods  = "2"
@@ -269,7 +253,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_win_memory_alarm" {
   count = var.number_win_mem
 
   alarm_description   = "Memory available is less than ${var.ec2_memory_windows_threshold}%"
-  alarm_name          = format("%v-%03d", "EC2-Windows-MemoryUsageAlarm-${var.app_name}", count.index + 1)
+  alarm_name          = var.number_win_mem > 1 ? format("%v-%03d", "EC2-Windows-MemoryUsageAlarm-${var.app_name}", count.index + 1) : "EC2-Windows-MemoryUsageAlarm-${var.app_name}"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 10
   namespace           = var.cw_namespace_windows

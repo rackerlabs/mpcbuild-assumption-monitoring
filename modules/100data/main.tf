@@ -157,7 +157,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage_space_alarm" {
   count = var.number_rds_instances
 
   alarm_description   = "Storage available is less than ${var.rds_alarm_free_space_threshold}%"
-  alarm_name          = format("%v-%03d", "RDS-FreeStorageAlarm-${var.app_name}", count.index + 1)
+  alarm_name          = var.number_rds_instances > 1 ? format("%v-%03d", "RDS-FreeStorageAlarm-${var.app_name}", count.index + 1) : "RDS-FreeStorageAlarm-${var.app_name}"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 30
   namespace           = "AWS/RDS"
@@ -198,7 +198,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_replica_free_storage_space_alarm" {
   count = var.number_rds_read_replicas
 
   alarm_description   = "Storage available is less than ${var.rds_alarm_free_space_threshold}%"
-  alarm_name          = format("%v-%03d", "RDS-Replica-FreeStorageAlarm-${var.app_name}", count.index + 1)
+  alarm_name          = var.number_rds_read_replicas > 1 ? format("%v-%03d", "RDS-Replica-FreeStorageAlarm-${var.app_name}", count.index + 1) : "RDS-Replica-FreeStorageAlarm-${var.app_name}"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 30
   namespace           = "AWS/RDS"
@@ -464,7 +464,7 @@ resource "aws_cloudwatch_metric_alarm" "aurora_free_memory_alarm" {
   count = var.number_aurora_nodes
 
   alarm_description   = "Freeable memory is less than ${var.aurora_free_memory_threshold}%"
-  alarm_name          = format("%v-%03d", "Aurora-FreeMemoryAlarm-${var.app_name}", count.index + 1)
+  alarm_name          = var.number_aurora_nodes > 1 ? format("%v-%03d", "Aurora-FreeMemoryAlarm-${var.app_name}", count.index + 1) : "Aurora-FreeMemoryAlarm-${var.app_name}"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 5
   namespace           = "AWS/RDS"
