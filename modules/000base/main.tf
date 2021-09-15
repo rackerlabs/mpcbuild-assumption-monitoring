@@ -21,7 +21,14 @@ data "null_data_source" "vpn" {
   }
 }
 
-module "vpn_status" {
+data "null_data_source" "dx" {
+  count = var.number_dx_connections
+  inputs = {
+    ConnectionId = element(var.dx_connections_ids, count.index)
+  }
+}
+
+module "vpn_status_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_vpn_connections
@@ -35,7 +42,27 @@ module "vpn_status" {
   namespace                = "AWS/VPN"
   notification_topic       = [module.sns.topic_arn]
   period                   = var.alarm_period_vpn
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.vpn_rackspace_alarms_enabled
+  statistic                = "Maximum"
+  threshold                = 0
+  unit                     = "None"
+}
+
+module "dx_status_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_dx_connections
+  alarm_description        = "${var.app_name}-DX Connection State"
+  alarm_name               = "DX-StatusAlarm-${var.app_name}"
+  comparison_operator      = "LessThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = data.null_data_source.dx.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "ConnectionState"
+  namespace                = "AWS/DX"
+  notification_topic       = [module.sns.topic_arn]
+  period                   = 60
+  rackspace_alarms_enabled = var.dx_rackspace_alarms_enabled
   statistic                = "Maximum"
   threshold                = 0
   unit                     = "None"

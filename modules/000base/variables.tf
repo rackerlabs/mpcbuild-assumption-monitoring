@@ -68,10 +68,34 @@ variable "vpn_connections_ids" {
   default     = []
 }
 
+variable "number_dx_connections" {
+  description = "Number of Direct Connect connections to monitor"
+  type        = number
+  default     = 0
+}
+
+variable "dx_connections_ids" {
+  description = "Direct Connect connection ID's to be monitored. The list should match the length specified"
+  type        = list(string)
+  default     = []
+}
+
+variable "vpn_rackspace_alarms_enabled" {
+  description = "Specifies whether VPN alarms will create a Rackspace ticket."
+  type        = bool
+  default     = false
+}
+
+variable "dx_rackspace_alarms_enabled" {
+  description = "Specifies whether Direct Connect alarms will create a Rackspace ticket."
+  type        = bool
+  default     = false
+}
+
 variable "alarm_evaluations_vpn" {
   description = "The number of periods over which data is evaluated to monitor VPN connection status."
   type        = number
-  default     = 10
+  default     = 5
 }
 
 variable "alarm_period_vpn" {
