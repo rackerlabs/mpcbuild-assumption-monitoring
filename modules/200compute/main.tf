@@ -135,6 +135,7 @@ module "ec2_status_check_failed_system_alarm_ticket" {
     ["EC2", "StatusCheckFailedSystemAlarm", var.app_name],
   )
   comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
   dimensions               = data.null_data_source.ec2_instances.*.outputs
   evaluation_periods       = "2"
   notification_topic       = var.notification_topic
@@ -195,6 +196,7 @@ module "ec2_status_check_failed_instance_alarm_ticket" {
     ["EC2", "StatusCheckFailedInstanceAlarm", var.app_name],
   )
   comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
   dimensions               = data.null_data_source.ec2_instances.*.outputs
   evaluation_periods       = "10"
   metric_name              = "StatusCheckFailed_Instance"
@@ -329,6 +331,7 @@ module "asg_group_terminating_instances" {
   alarm_description        = "Over ${var.asg_terminated_instances} instances terminated in last 6 hours, generating ticket to investigate."
   alarm_name               = "ASG-TerminatingInstancesAlarm-${var.app_name}"
   comparison_operator      = "GreaterThanThreshold"
+  customer_alarms_enabled  = true
   dimensions               = data.null_data_source.asg.*.outputs
   evaluation_periods       = 1
   metric_name              = "GroupTerminatingInstances"

@@ -162,43 +162,43 @@ variable "ec2_rackspace_alarms_enabled" {
 variable "asg_rackspace_alarms_enabled" {
   description = "Specifies whether ASG alarms will create a Rackspace ticket"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "elb_rackspace_alarms_enabled" {
   description = "Specifies whether ELB alarms will create a Rackspace ticket"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "ecs_rackspace_alarms_enabled" {
   description = "Specifies whether ECS alarms will create a Rackspace ticket"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "lambda_rackspace_alarms_enabled" {
   description = "Specifies whether Lambda alarms will create a Rackspace ticket"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "cloudfront_rackspace_alarms_enabled" {
   description = "Specifies whether Cloudfront alarms will create a Rackspace ticket"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "api_gw_rackspace_alarms_enabled" {
   description = "Specifies whether API GW alarms will create a Rackspace ticket"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "ec2_alarm_severity" {
   description = "Severity of the alarm triggered for EC2. Can be emergency, urgent or standard"
   type        = string
-  default     = "high"
+  default     = "urgent"
 }
 
 variable "asg_alarm_severity" {
