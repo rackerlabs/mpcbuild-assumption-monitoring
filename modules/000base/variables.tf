@@ -80,16 +80,34 @@ variable "dx_connections_ids" {
   default     = []
 }
 
+variable "number_health_checks" {
+  description = "Route53 Health checks to monitor"
+  type        = number
+  default     = 0
+}
+
+variable "health_check_ids" {
+  description = "Route53 Health Check Id's to be monitored. The list should match the length specified"
+  type        = list(string)
+  default     = []
+}
+
 variable "vpn_rackspace_alarms_enabled" {
   description = "Specifies whether VPN alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "dx_rackspace_alarms_enabled" {
   description = "Specifies whether Direct Connect alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
+}
+
+variable "r53_rackspace_alarms_enabled" {
+  description = "Specifies whether Route53 HC alarms will create a Rackspace ticket."
+  type        = bool
+  default     = true
 }
 
 variable "alarm_evaluations_vpn" {
@@ -102,4 +120,22 @@ variable "alarm_period_vpn" {
   description = "Time the specified statistic is applied. Must be in seconds that is also a multiple of 60."
   type        = number
   default     = 60
+}
+
+variable "vpn_alarm_severity" {
+  description = "Severity of the alarm triggered for VPN status. Can be emergency, urgent or standard"
+  type        = string
+  default     = "emergency"
+}
+
+variable "dx_alarm_severity" {
+  description = "Severity of the alarm triggered for Direct Connect status. Can be emergency, urgent or standard"
+  type        = string
+  default     = "emergency"
+}
+
+variable "r53_alarm_severity" {
+  description = "Severity of the alarm triggered for Route53 HC status. Can be emergency, urgent or standard"
+  type        = string
+  default     = "emergency"
 }

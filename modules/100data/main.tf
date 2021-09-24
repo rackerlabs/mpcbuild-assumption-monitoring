@@ -11,11 +11,20 @@ data "aws_region" "current_region" {}
 data "aws_caller_identity" "current_account" {}
 
 locals {
-  rackspace_alarm_config_rds = var.rds_rackspace_alarms_enabled ? "enabled" : "disabled"
-  rackspace_alarm_config_efs = var.efs_rackspace_alarms_enabled ? "enabled" : "disabled"
+  rackspace_alarm_config_rds    = var.rds_rackspace_alarms_enabled ? "enabled" : "disabled"
+  rackspace_alarm_config_aurora = var.aurora_rackspace_alarms_enabled ? "enabled" : "disabled"
+  rackspace_alarm_config_efs    = var.efs_rackspace_alarms_enabled ? "enabled" : "disabled"
 
-  rackspace_alarm_actions = {
-    enabled  = [local.rackspace_sns_topic["emergency"]]
+  rackspace_alarm_actions_rds = {
+    enabled  = [local.rackspace_sns_topic[var.rds_alarm_severity]]
+    disabled = []
+  }
+  rackspace_alarm_actions_aurora = {
+    enabled  = [local.rackspace_sns_topic[var.aurora_alarm_severity]]
+    disabled = []
+  }
+  rackspace_alarm_actions_efs = {
+    enabled  = [local.rackspace_sns_topic[var.efs_alarm_severity]]
     disabled = []
   }
   rackspace_sns_topic = {
@@ -170,7 +179,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage_space_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config_rds],
+    local.rackspace_alarm_actions_rds[local.rackspace_alarm_config_rds],
   )
 }
 
@@ -211,7 +220,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_replica_free_storage_space_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config_rds],
+    local.rackspace_alarm_actions_rds[local.rackspace_alarm_config_rds],
   )
 }
 
@@ -309,6 +318,8 @@ module "rds_cpu_high_alarm" {
   notification_topic       = var.notification_topic
   period                   = 60
   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.rds_alarm_severity
   statistic                = "Average"
   threshold                = var.rds_alarm_cpu_limit
   unit                     = "Percent"
@@ -329,6 +340,8 @@ module "rds_replica_cpu_high_alarm" {
   notification_topic       = var.notification_topic
   period                   = 60
   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.rds_alarm_severity
   statistic                = "Average"
   threshold                = var.rds_alarm_cpu_limit
   unit                     = "Percent"
@@ -369,7 +382,9 @@ module "replica_lag_alarm" {
   namespace                = "AWS/RDS"
   notification_topic       = var.notification_topic
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.rds_alarm_severity
   statistic                = "Average"
   threshold                = var.rds_replica_lag_threshold
   unit                     = "Seconds"
@@ -390,6 +405,8 @@ module "rds_depth_queue_alarm" {
   notification_topic       = var.notification_topic
   period                   = 60
   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.rds_alarm_severity
   statistic                = "Average"
   threshold                = var.rds_depth_queue_threshold
   unit                     = "Count"
@@ -410,7 +427,9 @@ module "rds_read_latency_alarm" {
   notification_topic       = var.notification_topic
   period                   = 60
   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  rackspace_managed        = true
   statistic                = "Average"
+  severity                 = var.rds_alarm_severity
   threshold                = var.rds_read_latency_threshold
   unit                     = "Seconds"
   dimensions               = data.null_data_source.rds_instances.*.outputs
@@ -430,6 +449,8 @@ module "rds_write_latency_alarm" {
   notification_topic       = var.notification_topic
   period                   = 60
   rackspace_alarms_enabled = var.rds_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.rds_alarm_severity
   statistic                = "Average"
   threshold                = var.rds_write_latency_threshold
   unit                     = "Seconds"
@@ -454,7 +475,7 @@ module "aurora_high_cpu" {
   period                   = 60
   rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.aurora_alarm_severity
   statistic                = "Average"
   unit                     = "Percent"
   threshold                = var.aurora_alarm_cpu_limit
@@ -477,7 +498,7 @@ resource "aws_cloudwatch_metric_alarm" "aurora_free_memory_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config_rds],
+    local.rackspace_alarm_actions_aurora[local.rackspace_alarm_config_aurora],
   )
 }
 
@@ -497,7 +518,7 @@ module "aurora_read_latency" {
   period                   = 60
   rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.aurora_alarm_severity
   statistic                = "Average"
   unit                     = "Seconds"
   threshold                = var.aurora_read_latency_threshold
@@ -519,7 +540,7 @@ module "aurora_write_latency" {
   period                   = 60
   rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.aurora_alarm_severity
   statistic                = "Average"
   unit                     = "Seconds"
   threshold                = var.aurora_write_latency_threshold
@@ -541,7 +562,7 @@ module "aurora_replica_lag" {
   period                   = 60
   rackspace_alarms_enabled = var.aurora_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.aurora_alarm_severity
   statistic                = "Average"
   unit                     = "Milliseconds"
   threshold                = var.aurora_replica_lag_threshold
@@ -665,7 +686,7 @@ resource "aws_cloudwatch_metric_alarm" "efs_permitted_throughput_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config_efs],
+    local.rackspace_alarm_actions_efs[local.rackspace_alarm_config_efs],
   )
 }
 
@@ -684,7 +705,7 @@ module "efs_connections_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.efs_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.efs_alarm_severity
   statistic                = "Sum"
   threshold                = var.efs_connections_threshold
   dimensions               = data.null_data_source.efs.*.outputs
@@ -708,7 +729,7 @@ module "redshift_cpu_alarm_high" {
   period                   = 60
   rackspace_alarms_enabled = var.redshift_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.redshift_alarm_severity
   statistic                = "Average"
   threshold                = var.redshift_cw_cpu_threshold
   dimensions               = data.null_data_source.redshift.*.outputs
@@ -729,7 +750,7 @@ module "redshift_cluster_health_ticket" {
   period                   = 60
   rackspace_alarms_enabled = var.redshift_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.redshift_alarm_severity
   statistic                = "Minimum"
   threshold                = 1
   dimensions               = data.null_data_source.redshift.*.outputs
@@ -750,7 +771,7 @@ module "redshift_free_storage_space_ticket" {
   period                   = 60
   rackspace_alarms_enabled = var.redshift_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.redshift_alarm_severity
   statistic                = "Average"
   threshold                = var.redshift_cw_percentage_disk_used
   unit                     = "Percent"
@@ -793,6 +814,8 @@ module "redis_cpu_utilization_alarm" {
   notification_topic       = var.notification_topic
   period                   = 60
   rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.redis_alarm_severity
   statistic                = "Average"
   threshold                = var.redis_cpu_high_threshold
 }
@@ -812,6 +835,8 @@ module "redis_memory_utilization_alarm" {
   notification_topic       = var.notification_topic
   period                   = 60
   rackspace_alarms_enabled = var.redis_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.redis_alarm_severity
   statistic                = "Average"
   threshold                = var.redis_memory_high_threshold
 }
@@ -852,7 +877,7 @@ module "fsx_free_storage_space_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.fsx_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.fsx_alarm_severity
   statistic                = "Average"
   threshold                = var.fsx_free_space_threshold
   unit                     = "Bytes"
@@ -876,7 +901,7 @@ module "dynamodb_write_throttling_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.dynamo_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.dynamo_alarm_severity
   statistic                = "Sum"
   threshold                = var.dynamo_write_throttling_threshold
   unit                     = "Count"
@@ -898,7 +923,7 @@ module "dynamodb_read_throttling_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.dynamo_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "urgent"
+  severity                 = var.dynamo_alarm_severity
   statistic                = "Sum"
   threshold                = var.dynamo_read_throttling_threshold
   unit                     = "Count"

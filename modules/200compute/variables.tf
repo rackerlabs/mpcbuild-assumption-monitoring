@@ -195,6 +195,48 @@ variable "api_gw_rackspace_alarms_enabled" {
   default     = false
 }
 
+variable "ec2_alarm_severity" {
+  description = "Severity of the alarm triggered for EC2. Can be emergency, urgent or standard"
+  type        = string
+  default     = "high"
+}
+
+variable "asg_alarm_severity" {
+  description = "Severity of the alarm triggered for ASG. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "elb_alarm_severity" {
+  description = "Severity of the alarm triggered for ALB/NLB. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "ecs_alarm_severity" {
+  description = "Severity of the alarm triggered for ECS. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "lambda_alarm_severity" {
+  description = "Severity of the alarm triggered for Lambda. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "cloudfront_alarm_severity" {
+  description = "Severity of the alarm triggered for Cloudfront. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "api_gw_alarm_severity" {
+  description = "Severity of the alarm triggered for API Gateway. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
 variable "enable_recovery_alarms" {
   description = "Boolean parameter controlling if auto-recovery alarms should be created.  Recovery actions are not supported on all instance types and AMIs, especially those with ephemeral storage.  This parameter should be set to false for those cases."
   type        = bool

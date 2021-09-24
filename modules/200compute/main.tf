@@ -14,8 +14,12 @@ locals {
   rackspace_alarm_config_ec2 = var.ec2_rackspace_alarms_enabled ? "enabled" : "disabled"
   rackspace_alarm_config_elb = var.elb_rackspace_alarms_enabled ? "enabled" : "disabled"
 
-  rackspace_alarm_actions = {
-    enabled  = [local.rackspace_sns_topic["emergency"]]
+  rackspace_alarm_actions_ec2 = {
+    enabled  = [local.rackspace_sns_topic[var.ec2_alarm_severity]]
+    disabled = []
+  }
+  rackspace_alarm_actions_elb = {
+    enabled  = [local.rackspace_sns_topic[var.elb_alarm_severity]]
     disabled = []
   }
   rackspace_sns_topic = {
@@ -219,8 +223,9 @@ module "ec2_cpu_alarm_high" {
   notification_topic       = var.notification_topic
   namespace                = "AWS/EC2"
   period                   = var.ec2_cw_cpu_high_period
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.ec2_rackspace_alarms_enabled
   rackspace_managed        = true
+  severity                 = var.ec2_alarm_severity
   statistic                = "Average"
   threshold                = var.ec2_cw_cpu_high_threshold
   unit                     = "Percent"
@@ -242,8 +247,9 @@ module "ec2_win_disk_alarm" {
   notification_topic       = var.notification_topic
   namespace                = var.cw_namespace_windows
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.ec2_rackspace_alarms_enabled
   rackspace_managed        = true
+  severity                 = var.ec2_alarm_severity
   statistic                = "Average"
   threshold                = var.ec2_disk_windows_threshold
   unit                     = "Percent"
@@ -266,7 +272,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_win_memory_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config_ec2],
+    local.rackspace_alarm_actions_ec2[local.rackspace_alarm_config_ec2],
   )
 }
 
@@ -284,8 +290,9 @@ module "ec2_linux_disk_alarm" {
   notification_topic       = var.notification_topic
   namespace                = var.cw_namespace_linux
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.ec2_rackspace_alarms_enabled
   rackspace_managed        = true
+  severity                 = var.ec2_alarm_severity
   statistic                = "Average"
   threshold                = var.ec2_disk_linux_threshold
   unit                     = "Percent"
@@ -305,8 +312,9 @@ module "ec2_linux_memory_alarm" {
   notification_topic       = var.notification_topic
   namespace                = var.cw_namespace_linux
   period                   = 60
-  rackspace_alarms_enabled = false
+  rackspace_alarms_enabled = var.ec2_rackspace_alarms_enabled
   rackspace_managed        = true
+  severity                 = var.ec2_alarm_severity
   statistic                = "Average"
   threshold                = var.ec2_memory_linux_threshold
   unit                     = "Percent"
@@ -329,7 +337,7 @@ module "asg_group_terminating_instances" {
   period                   = 21600
   rackspace_alarms_enabled = var.asg_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.asg_alarm_severity
   statistic                = "Sum"
   threshold                = var.asg_terminated_instances
   unit                     = "Count"
@@ -353,7 +361,7 @@ module "alb_unhealthy_host_count_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.elb_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.elb_alarm_severity
   statistic                = "Maximum"
   threshold                = 1
   unit                     = "Count"
@@ -403,7 +411,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealth_host_percentage_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config_elb],
+    local.rackspace_alarm_actions_elb[local.rackspace_alarm_config_elb],
   )
 }
 
@@ -423,7 +431,7 @@ module "alb_target_response_time_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.elb_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.elb_alarm_severity
   statistic                = "Average"
   threshold                = var.alb_response_time_threshold
   unit                     = "Seconds"
@@ -445,7 +453,7 @@ module "nlb_unhealthy_host_count_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.elb_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.elb_alarm_severity
   statistic                = "Maximum"
   threshold                = 1
   unit                     = "Count"
@@ -495,7 +503,7 @@ resource "aws_cloudwatch_metric_alarm" "nlb_unhealth_host_percentage_alarm" {
 
   alarm_actions = concat(
     var.notification_topic,
-    local.rackspace_alarm_actions[local.rackspace_alarm_config_elb],
+    local.rackspace_alarm_actions_elb[local.rackspace_alarm_config_elb],
   )
 }
 
@@ -517,7 +525,7 @@ module "ecs_cpu_utilization_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.ecs_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.ecs_alarm_severity
   statistic                = "Average"
   threshold                = var.ecs_cpu_high_threshold
   unit                     = "Percent"
@@ -539,7 +547,7 @@ module "ecs_memory_utilization_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.ecs_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.ecs_alarm_severity
   statistic                = "Average"
   threshold                = var.ecs_memory_high_threshold
   unit                     = "Percent"
@@ -563,7 +571,7 @@ module "lambda_errors_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.lambda_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.lambda_alarm_severity
   statistic                = "Minimum"
   threshold                = "0"
   unit                     = "Count"
@@ -587,7 +595,7 @@ module "cloudfront_total_errors_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.cloudfront_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.cloudfront_alarm_severity
   statistic                = "Average"
   threshold                = var.cloudfront_total_errors_threshold
   unit                     = "Percent"
@@ -609,7 +617,7 @@ module "cloudfront_500_errors_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.cloudfront_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.cloudfront_alarm_severity
   statistic                = "Average"
   threshold                = var.cloudfront_500_errors_threshold
   unit                     = "Percent"
@@ -633,7 +641,7 @@ module "api_gw_500_errors_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.api_gw_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.api_gw_alarm_severity
   statistic                = "Sum"
   threshold                = var.api_gw_500_errors_threshold
   unit                     = "Count"
@@ -655,7 +663,7 @@ module "api_gw_400_errors_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.api_gw_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.api_gw_alarm_severity
   statistic                = "Sum"
   threshold                = var.api_gw_400_errors_threshold
   unit                     = "Count"
@@ -677,7 +685,7 @@ module "api_gw_latency_alarm" {
   period                   = 60
   rackspace_alarms_enabled = var.api_gw_rackspace_alarms_enabled
   rackspace_managed        = true
-  severity                 = "emergency"
+  severity                 = var.api_gw_alarm_severity
   statistic                = "Average"
   threshold                = var.api_gw_latency_threshold
   unit                     = "Milliseconds"

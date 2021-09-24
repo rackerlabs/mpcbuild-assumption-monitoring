@@ -28,6 +28,13 @@ data "null_data_source" "dx" {
   }
 }
 
+data "null_data_source" "hc" {
+  count = var.number_health_checks
+  inputs = {
+    HealthCheckId = element(var.health_check_ids, count.index)
+  }
+}
+
 module "vpn_status_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
@@ -43,6 +50,8 @@ module "vpn_status_alarm" {
   notification_topic       = [module.sns.topic_arn]
   period                   = var.alarm_period_vpn
   rackspace_alarms_enabled = var.vpn_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.vpn_alarm_severity
   statistic                = "Maximum"
   threshold                = 0
   unit                     = "None"
@@ -63,6 +72,30 @@ module "dx_status_alarm" {
   notification_topic       = [module.sns.topic_arn]
   period                   = 60
   rackspace_alarms_enabled = var.dx_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.dx_alarm_severity
+  statistic                = "Maximum"
+  threshold                = 0
+  unit                     = "None"
+}
+
+module "hc_status_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
+
+  alarm_count              = var.number_health_checks
+  alarm_description        = "${var.app_name}-HC status alarm"
+  alarm_name               = "Route53-HealthCheckStatusAlarm-${var.app_name}"
+  comparison_operator      = "LessThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = data.null_data_source.hc.*.outputs
+  evaluation_periods       = 5
+  metric_name              = "HealthCheckStatus"
+  namespace                = "AWS/Route53"
+  notification_topic       = [module.sns.topic_arn]
+  period                   = 60
+  rackspace_alarms_enabled = var.r53_rackspace_alarms_enabled
+  rackspace_managed        = true
+  severity                 = var.r53_alarm_severity
   statistic                = "Maximum"
   threshold                = 0
   unit                     = "None"

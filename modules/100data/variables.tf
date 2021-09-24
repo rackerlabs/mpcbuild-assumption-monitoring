@@ -150,43 +150,85 @@ variable "notification_topic" {
 variable "rds_rackspace_alarms_enabled" {
   description = "Specifies whether RDS alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "aurora_rackspace_alarms_enabled" {
   description = "Specifies whether Aurora alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "efs_rackspace_alarms_enabled" {
   description = "Specifies whether EFS alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "redshift_rackspace_alarms_enabled" {
   description = "Specifies whether Redshift alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "redis_rackspace_alarms_enabled" {
   description = "Specifies whether Redis (Elasticache) alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "fsx_rackspace_alarms_enabled" {
   description = "Specifies whether FSX alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "dynamo_rackspace_alarms_enabled" {
   description = "Specifies whether Dynamo alarms will create a Rackspace ticket."
   type        = bool
-  default     = false
+  default     = true
+}
+
+variable "rds_alarm_severity" {
+  description = "Severity of the alarm triggered for RDS. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "aurora_alarm_severity" {
+  description = "Severity of the alarm triggered for Aurora. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "efs_alarm_severity" {
+  description = "Severity of the alarm triggered for EFS. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "redshift_alarm_severity" {
+  description = "Severity of the alarm triggered for Redshift. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "redis_alarm_severity" {
+  description = "Severity of the alarm triggered for Elasticache Redis. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "fsx_alarm_severity" {
+  description = "Severity of the alarm triggered for FSX. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
+}
+
+variable "dynamo_alarm_severity" {
+  description = "Severity of the alarm triggered for DynamoDB. Can be emergency, urgent or standard"
+  type        = string
+  default     = "urgent"
 }
 
 variable "rds_alarm_cpu_limit" {
