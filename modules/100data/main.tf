@@ -181,7 +181,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage_space_alarm" {
     var.notification_topic,
     local.rackspace_alarm_actions_rds[local.rackspace_alarm_config_rds],
   )
-  ok_actions = [local.rackspace_alarm_actions_rds[local.rackspace_alarm_config_rds]]
+  ok_actions = local.rackspace_alarm_actions_rds[local.rackspace_alarm_config_rds]
 }
 
 # module "rds_replica_free_storage_space_alarm_email" {
@@ -223,7 +223,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_replica_free_storage_space_alarm" {
     var.notification_topic,
     local.rackspace_alarm_actions_rds[local.rackspace_alarm_config_rds],
   )
-  ok_actions = [local.rackspace_alarm_actions_rds[local.rackspace_alarm_config_rds]]
+  ok_actions = local.rackspace_alarm_actions_rds[local.rackspace_alarm_config_rds]
 }
 
 # module "rds_write_iops_high_alarm_email" {
@@ -502,7 +502,7 @@ resource "aws_cloudwatch_metric_alarm" "aurora_free_memory_alarm" {
     var.notification_topic,
     local.rackspace_alarm_actions_aurora[local.rackspace_alarm_config_aurora],
   )
-  ok_actions = [local.rackspace_alarm_actions_aurora[local.rackspace_alarm_config_aurora]]
+  ok_actions = local.rackspace_alarm_actions_aurora[local.rackspace_alarm_config_aurora]
 }
 
 module "aurora_read_latency" {
@@ -691,7 +691,7 @@ resource "aws_cloudwatch_metric_alarm" "efs_permitted_throughput_alarm" {
     var.notification_topic,
     local.rackspace_alarm_actions_efs[local.rackspace_alarm_config_efs],
   )
-  ok_actions = [local.rackspace_alarm_actions_efs[local.rackspace_alarm_config_efs]]
+  ok_actions = local.rackspace_alarm_actions_efs[local.rackspace_alarm_config_efs]
 }
 
 module "efs_connections_alarm" {

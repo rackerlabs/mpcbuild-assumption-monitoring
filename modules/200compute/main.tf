@@ -276,7 +276,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_win_memory_alarm" {
     var.notification_topic,
     local.rackspace_alarm_actions_ec2[local.rackspace_alarm_config_ec2],
   )
-  ok_actions = [local.rackspace_alarm_actions_ec2[local.rackspace_alarm_config_ec2]]
+  ok_actions = local.rackspace_alarm_actions_ec2[local.rackspace_alarm_config_ec2]
 }
 
 module "ec2_linux_disk_alarm" {
@@ -417,7 +417,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealth_host_percentage_alarm" {
     var.notification_topic,
     local.rackspace_alarm_actions_elb[local.rackspace_alarm_config_elb],
   )
-  ok_actions = [local.rackspace_alarm_actions_elb[local.rackspace_alarm_config_elb]]
+  ok_actions = local.rackspace_alarm_actions_elb[local.rackspace_alarm_config_elb]
 }
 
 module "alb_target_response_time_alarm" {
@@ -510,7 +510,7 @@ resource "aws_cloudwatch_metric_alarm" "nlb_unhealth_host_percentage_alarm" {
     var.notification_topic,
     local.rackspace_alarm_actions_elb[local.rackspace_alarm_config_elb],
   )
-  ok_actions = [local.rackspace_alarm_actions_elb[local.rackspace_alarm_config_elb]]
+  ok_actions = local.rackspace_alarm_actions_elb[local.rackspace_alarm_config_elb]
 }
 
 ####### ECS monitoring #######
