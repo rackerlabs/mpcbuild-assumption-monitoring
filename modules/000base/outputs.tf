@@ -1,4 +1,4 @@
 output "sns_topic" {
   description = "SNS ARN for monitoring"
-  value       = module.sns.topic_arn
+  value       = coalesce(var.existing_sns_topic, module.sns.topic_arn)
 }

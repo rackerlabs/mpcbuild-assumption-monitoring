@@ -139,3 +139,9 @@ variable "r53_alarm_severity" {
   type        = string
   default     = "emergency"
 }
+
+variable "existing_sns_topic" {
+  description = "The ARN of an existing SNS topic, in case the customer wants to send the notification there instead of using a new topic"
+  type        = string
+  default     = ""
+}

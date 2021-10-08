@@ -47,7 +47,7 @@ module "vpn_status_alarm" {
   evaluation_periods       = var.alarm_evaluations_vpn
   metric_name              = "TunnelState"
   namespace                = "AWS/VPN"
-  notification_topic       = [module.sns.topic_arn]
+  notification_topic       = var.existing_sns_topic != "" ? [var.existing_sns_topic] : [module.sns.topic_arn]
   period                   = var.alarm_period_vpn
   rackspace_alarms_enabled = var.vpn_rackspace_alarms_enabled
   rackspace_managed        = true
@@ -69,7 +69,7 @@ module "dx_status_alarm" {
   evaluation_periods       = 5
   metric_name              = "ConnectionState"
   namespace                = "AWS/DX"
-  notification_topic       = [module.sns.topic_arn]
+  notification_topic       = var.existing_sns_topic != "" ? [var.existing_sns_topic] : [module.sns.topic_arn]
   period                   = 60
   rackspace_alarms_enabled = var.dx_rackspace_alarms_enabled
   rackspace_managed        = true
@@ -91,7 +91,7 @@ module "hc_status_alarm" {
   evaluation_periods       = 5
   metric_name              = "HealthCheckStatus"
   namespace                = "AWS/Route53"
-  notification_topic       = [module.sns.topic_arn]
+  notification_topic       = var.existing_sns_topic != "" ? [var.existing_sns_topic] : [module.sns.topic_arn]
   period                   = 60
   rackspace_alarms_enabled = var.r53_rackspace_alarms_enabled
   rackspace_managed        = true
