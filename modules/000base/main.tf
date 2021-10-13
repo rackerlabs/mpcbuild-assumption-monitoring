@@ -40,7 +40,7 @@ module "vpn_status_alarm" {
 
   alarm_count              = var.number_vpn_connections
   alarm_description        = "${var.app_name}-VPN Connection State"
-  alarm_name               = "VPN-StatusAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-VPN-StatusAlarm"
   comparison_operator      = "LessThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.vpn.*.outputs
@@ -62,7 +62,7 @@ module "dx_status_alarm" {
 
   alarm_count              = var.number_dx_connections
   alarm_description        = "${var.app_name}-DX Connection State"
-  alarm_name               = "DX-StatusAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-DX-StatusAlarm"
   comparison_operator      = "LessThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.dx.*.outputs
@@ -84,7 +84,7 @@ module "hc_status_alarm" {
 
   alarm_count              = var.number_health_checks
   alarm_description        = "${var.app_name}-HC status alarm"
-  alarm_name               = "Route53-HealthCheckStatusAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Route53-HealthCheckStatusAlarm"
   comparison_operator      = "LessThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.hc.*.outputs

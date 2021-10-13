@@ -166,7 +166,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage_space_alarm" {
   count = var.number_rds_instances
 
   alarm_description   = "Storage available is less than ${var.rds_alarm_free_space_threshold}%"
-  alarm_name          = var.number_rds_instances > 1 ? format("%v-%03d", "RDS-FreeStorageAlarm-${var.app_name}", count.index + 1) : "RDS-FreeStorageAlarm-${var.app_name}"
+  alarm_name          = var.number_rds_instances > 1 ? format("%v-%03d", "${var.app_name}-RDS-FreeStorageAlarm", count.index + 1) : "${var.app_name}-RDS-FreeStorageAlarm"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 30
   namespace           = "AWS/RDS"
@@ -208,7 +208,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_replica_free_storage_space_alarm" {
   count = var.number_rds_read_replicas
 
   alarm_description   = "Storage available is less than ${var.rds_alarm_free_space_threshold}%"
-  alarm_name          = var.number_rds_read_replicas > 1 ? format("%v-%03d", "RDS-Replica-FreeStorageAlarm-${var.app_name}", count.index + 1) : "RDS-Replica-FreeStorageAlarm-${var.app_name}"
+  alarm_name          = var.number_rds_read_replicas > 1 ? format("%v-%03d", "${var.app_name}-RDS-Replica-FreeStorageAlarm", count.index + 1) : "${var.app_name}-RDS-Replica-FreeStorageAlarm"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 30
   namespace           = "AWS/RDS"
@@ -311,7 +311,7 @@ module "rds_cpu_high_alarm" {
 
   alarm_count              = var.number_rds_instances
   alarm_description        = "Alarm if CPU > ${var.rds_alarm_cpu_limit} for 15 minutes"
-  alarm_name               = "RDS-CPUUtilizationAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-RDS-CPUUtilizationAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -333,7 +333,7 @@ module "rds_replica_cpu_high_alarm" {
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "Alarm if CPU > ${var.rds_alarm_cpu_limit} for 15 minutes"
-  alarm_name               = "RDS-Replica-CPUUtilizationAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-RDS-Replica-CPUUtilizationAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -376,7 +376,7 @@ module "replica_lag_alarm" {
 
   alarm_count              = var.number_rds_read_replicas
   alarm_description        = "ReplicaLag has exceeded threshold."
-  alarm_name               = "RDS-Replica-LagAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-RDS-Replica-LagAlarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 3
@@ -398,7 +398,7 @@ module "rds_depth_queue_alarm" {
 
   alarm_count              = var.rds_depth_queue_threshold != "" ? var.number_rds_instances : 0
   alarm_description        = "Alarm if Depth queue is > ${var.rds_depth_queue_threshold} for 15 minutes"
-  alarm_name               = "RDS-DepthQueueAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-RDS-DepthQueueAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -420,7 +420,7 @@ module "rds_read_latency_alarm" {
 
   alarm_count              = var.rds_read_latency_threshold != "" ? var.number_rds_instances : 0
   alarm_description        = "Alarm if read latency is > ${var.rds_read_latency_threshold} for 15 minutes"
-  alarm_name               = "RDS-ReadLatencyAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-RDS-ReadLatencyAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -442,7 +442,7 @@ module "rds_write_latency_alarm" {
 
   alarm_count              = var.rds_write_latency_threshold != "" ? var.number_rds_instances : 0
   alarm_description        = "Alarm if write latency is > ${var.rds_write_latency_threshold} for 15 minutes"
-  alarm_name               = "RDS-WriteLatencyAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-RDS-WriteLatencyAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 15
@@ -466,7 +466,7 @@ module "aurora_high_cpu" {
 
   alarm_count              = var.number_aurora_nodes
   alarm_description        = "CPU Utilization above ${var.aurora_alarm_cpu_limit} for 15 minutes.  Sending notifications..."
-  alarm_name               = "Aurora-CPUUtilizationAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Aurora-CPUUtilizationAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.aurora_nodes.*.outputs
@@ -487,7 +487,7 @@ resource "aws_cloudwatch_metric_alarm" "aurora_free_memory_alarm" {
   count = var.number_aurora_nodes
 
   alarm_description   = "Freeable memory is less than ${var.aurora_free_memory_threshold}%"
-  alarm_name          = var.number_aurora_nodes > 1 ? format("%v-%03d", "Aurora-FreeMemoryAlarm-${var.app_name}", count.index + 1) : "Aurora-FreeMemoryAlarm-${var.app_name}"
+  alarm_name          = var.number_aurora_nodes > 1 ? format("%v-%03d", "${var.app_name}-Aurora-FreeMemoryAlarm", count.index + 1) : "${var.app_name}-Aurora-FreeMemoryAlarm"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 5
   namespace           = "AWS/RDS"
@@ -510,7 +510,7 @@ module "aurora_read_latency" {
 
   alarm_count              = var.aurora_read_latency_threshold != "" ? var.number_aurora_nodes : 0
   alarm_description        = "Read Latency is above ${var.aurora_read_latency_threshold} seconds"
-  alarm_name               = "Aurora-ReadLatencyAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Aurora-ReadLatencyAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.aurora_nodes.*.outputs
@@ -532,7 +532,7 @@ module "aurora_write_latency" {
 
   alarm_count              = var.aurora_write_latency_threshold != "" ? var.number_aurora_nodes : 0
   alarm_description        = "Write Latency is above ${var.aurora_write_latency_threshold} seconds"
-  alarm_name               = "Aurora-WriteLatencyAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Aurora-WriteLatencyAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.aurora_nodes.*.outputs
@@ -554,7 +554,7 @@ module "aurora_replica_lag" {
 
   alarm_count              = var.number_aurora_readers
   alarm_description        = "Replica lag is above ${var.aurora_replica_lag_threshold} milliseconds"
-  alarm_name               = "Aurora-ReplicaLagAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Aurora-ReplicaLagAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   dimensions               = data.null_data_source.aurora_readers.*.outputs
@@ -637,7 +637,7 @@ resource "aws_cloudwatch_metric_alarm" "efs_permitted_throughput_alarm" {
   count = var.number_elastic_filesystems
 
   alarm_description   = "Percentage of permitted throughput is bigger than ${var.efs_throughput_percent_threshold}%, creating ticket."
-  alarm_name          = var.number_elastic_filesystems > 1 ? format("%v-%03d", "EFS-PermittedThroughputAlarm-${var.app_name}", count.index + 1) : "EFS-PermittedThroughputAlarm-${var.app_name}"
+  alarm_name          = var.number_elastic_filesystems > 1 ? format("%v-%03d", "${var.app_name}-EFS-PermittedThroughputAlarm", count.index + 1) : "${var.app_name}-EFS-PermittedThroughputAlarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 10
   threshold           = var.efs_throughput_percent_threshold
@@ -699,7 +699,7 @@ module "efs_connections_alarm" {
 
   alarm_count              = var.efs_connections_threshold != "" ? var.number_elastic_filesystems : 0
   alarm_description        = "Number of connections is above ${var.efs_connections_threshold}, creating a ticket"
-  alarm_name               = "EFS-ConnectionsAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-EFS-ConnectionsAlarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 10
@@ -723,7 +723,7 @@ module "redshift_cpu_alarm_high" {
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Alarm if CPU > ${var.redshift_cw_cpu_threshold}% for 5 minutes"
-  alarm_name               = "Redshift-CPUUtilizationAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Redshift-CPUUtilizationAlarm"
   comparison_operator      = "GreaterThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
@@ -744,7 +744,7 @@ module "redshift_cluster_health_ticket" {
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Cluster has entered unhealthy state, creating ticket"
-  alarm_name               = "Redshift-ClusterHealthAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Redshift-ClusterHealthAlarm"
   comparison_operator      = "LessThanThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
@@ -765,7 +765,7 @@ module "redshift_free_storage_space_ticket" {
 
   alarm_count              = var.number_redshift_nodes
   alarm_description        = "Consumed storage space has risen above threshold, sending email notification"
-  alarm_name               = "Redshift-FreeStorageAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Redshift-FreeStorageAlarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 30
@@ -807,7 +807,7 @@ module "redis_cpu_utilization_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redis_clusters
-  alarm_name               = "Redis-CPUUtilizationAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Redis-CPUUtilizationAlarm"
   alarm_description        = "CPUUtilization over ${var.redis_cpu_high_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
@@ -828,7 +828,7 @@ module "redis_memory_utilization_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.6"
 
   alarm_count              = var.number_redis_clusters
-  alarm_name               = "Redis-MemoryUtilizationAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-Redis-MemoryUtilizationAlarm"
   alarm_description        = "Memory Utilization over ${var.redis_memory_high_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
@@ -871,7 +871,7 @@ module "fsx_free_storage_space_alarm" {
 
   alarm_count              = var.fsx_free_space_threshold != "" ? var.number_fsx_filesystems : 0
   alarm_description        = "Free storage space for FSX has fallen below the threshold, generating alarm"
-  alarm_name               = "FSx-FreeStorageAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-FSx-FreeStorageAlarm"
   comparison_operator      = "LessThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 30
@@ -895,7 +895,7 @@ module "dynamodb_write_throttling_alarm" {
 
   alarm_count              = var.dynamo_write_throttling_threshold != "" ? var.number_dynamo_tables : 0
   alarm_description        = "Sum of write throttling events are above the threshold, generating alarm"
-  alarm_name               = "DynamoDB-WriteThrottlingAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-DynamoDB-WriteThrottlingAlarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
@@ -917,7 +917,7 @@ module "dynamodb_read_throttling_alarm" {
 
   alarm_count              = var.dynamo_read_throttling_threshold != "" ? var.number_dynamo_tables : 0
   alarm_description        = "Sum of read throttling events are above the threshold, generating alarm"
-  alarm_name               = "DynamoDB-ReadThrottlingAlarm-${var.app_name}"
+  alarm_name               = "${var.app_name}-DynamoDB-ReadThrottlingAlarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = 5
